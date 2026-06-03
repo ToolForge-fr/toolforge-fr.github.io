@@ -1,1 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Fusion Audio - ToolForge</title>
+<meta name="description" content="Fusionnez plusieurs fichiers audio en un seul gratuitement en ligne.">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0B1220;
+  --card:#151F32;
+  --border:#24324D;
+  --text:#fff;
+  --muted:#A8B3CF;
+  --accent:#4F8CFF;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.container{
+  width:min(900px,92%);
+  margin:auto;
+  padding:40px 0;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:25px;
+}
+
+h1{margin-bottom:10px}
+p{color:var(--muted);margin-bottom:20px;line-height:1.6}
+
+input, button{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-bottom:10px;
+  background:#0B1220;
+  color:white;
+}
+
+button{
+  background:var(--accent);
+  cursor:pointer;
+  font-weight:600;
+}
+
+audio{
+  width:100%;
+  margin-top:10px;
+}
+
+.status{
+  margin-top:10px;
+  color:var(--muted);
+}
+
+a.download{
+  display:block;
+  text-align:center;
+  padding:12px;
+  margin-top:10px;
+  background:var(--accent);
+  color:white;
+  text-decoration:none;
+  border-radius:10px;
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h1>Fusion Audio</h1>
+
+<p>Combine plusieurs fichiers audio en un seul fichier.</p>
+
+<input type="file" id="files" accept="audio/*" multiple>
+
+<button id="merge">Fusionner</button>
+
+<audio id="preview" controls></audio>
+
+<a id="download" class="download">Télécharger</a>
+
+<div class="status" id="status"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const filesInput = document.getElementById('files');
+const mergeBtn = document.getElementById('merge');
+const preview = document.getElementById('preview');
+const download = document.getElementById('download');
+const status = document.getElementById('status');
+
+let audioContext;
+let buffers = [];
+
+filesInput.addEventListener('change', async (e) => {
+
+const files = Array.from(e.target.files);
+if(!files.length) return;
+
+audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+buffers = [];
+
+for(const file of files){
+
+const arrayBuffer = await file.arrayBuffer();
+const decoded = await audioContext.decodeAudioData(arrayBuffer);
+
+buffers.push(decoded);
+
+}
+
+status.textContent = "Fichiers chargés";
+
+});
+
+mergeBtn.addEventListener('click', async () => {
+
+if(!buffers.length) return;
+
+const sampleRate = buffers[0].sampleRate;
+const channels = buffers[0].numberOfChannels;
+
+// calcul longueur totale
+let totalLength = 0;
+buffers.forEach(b => totalLength += b.length);
+
+const offlineCtx = new OfflineAudioContext(
+channels,
+totalLength,
+sampleRate
+);
+
+let offset = 0;
+
+buffers.forEach(buffer => {
+
+const source = offlineCtx.createBufferSource();
+source.buffer = buffer;
+
+source.connect(offlineCtx.destination);
+source.start(offset / sampleRate);
+
+offset += buffer.length;
+
+});
+
+offlineCtx.startRendering().then(renderedBuffer => {
+
+const wav = bufferToWav(renderedBuffer);
+const url = URL.createObjectURL(wav);
+
+preview.src = url;
+
+download.href = url;
+download.download = "toolforge-merged.wav";
+download.style.display = "block";
+
+status.textContent = "Fusion terminée";
+
+});
+
+});
+
+function bufferToWav(buffer){
+
+const length = buffer.length * buffer.numberOfChannels * 2 + 44;
+const arrayBuffer = new ArrayBuffer(length);
+const view = new DataView(arrayBuffer);
+
+let offset = 0;
+
+function writeString(str){
+for(let i = 0; i < str.length; i++){
+view.setUint8(offset + i, str.charCodeAt(i));
+}
+offset += str.length;
+}
+
+writeString("RIFF");
+view.setUint32(offset, length - 8, true); offset += 4;
+writeString("WAVE");
+writeString("fmt ");
+view.setUint32(offset, 16, true); offset += 4;
+view.setUint16(offset, 1, true); offset += 2;
+view.setUint16(offset, buffer.numberOfChannels, true); offset += 2;
+view.setUint32(offset, buffer.sampleRate, true); offset += 4;
+view.setUint32(offset, buffer.sampleRate * buffer.numberOfChannels * 2, true); offset += 4;
+view.setUint16(offset, buffer.numberOfChannels * 2, true); offset += 2;
+view.setUint16(offset, 16, true); offset += 2;
+
+writeString("data");
+view.setUint32(offset, length - offset - 4, true); offset += 4;
+
+for(let i = 0; i < buffer.numberOfChannels; i++){
+const channelData = buffer.getChannelData(i);
+for(let j = 0; j < channelData.length; j++){
+let sample = Math.max(-1, Math.min(1, channelData[j]));
+view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+offset += 2;
+}
+}
+
+return new Blob([arrayBuffer], { type: "audio/wav" });
+
+}
+
+</script>
+
+</body>
+</html>

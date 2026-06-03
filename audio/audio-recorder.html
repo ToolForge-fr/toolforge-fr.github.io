@@ -149,7 +149,7 @@ Aucune inscription requise.
 <button class="stop" id="stopBtn" disabled>Arrêter</button>
 
 <a id="downloadLink" class="download">
-Télécharger
+Télécharger MP3
 </a>
 </div>
 
@@ -194,7 +194,34 @@ mediaRecorder.ondataavailable = event => {
 audioChunks.push(event.data);
 };
 
-mediaRecorder.onstop = () => {
+mediaRecorder.onstop = async () => {
+
+const { createFFmpeg, fetchFile } = FFmpeg;
+const ffmpeg = createFFmpeg({ log: false });
+
+await ffmpeg.load();
+
+const webmBlob = new Blob(audioChunks, { type: 'audio/webm' });
+
+ffmpeg.FS('writeFile', 'input.webm', await fetchFile(webmBlob));
+
+await ffmpeg.run('-i', 'input.webm', 'output.mp3');
+
+const data = ffmpeg.FS('readFile', 'output.mp3');
+
+const mp3Blob = new Blob([data.buffer], { type: 'audio/mp3' });
+
+const audioUrl = URL.createObjectURL(mp3Blob);
+
+audioPlayer.src = audioUrl;
+audioPlayer.style.display = 'block';
+
+downloadLink.href = audioUrl;
+downloadLink.download = 'toolforge-recording.mp3';
+downloadLink.style.display = 'inline-block';
+
+statusText.textContent = 'Conversion MP3 terminée';
+};
 
 const audioBlob = new Blob(audioChunks,{
 type:'audio/webm'

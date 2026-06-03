@@ -1,1 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Enregistreur Audio Gratuit - ToolForge</title>
+<meta name="description" content="Enregistrez votre voix directement depuis votre navigateur gratuitement.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--bg:#0B1220;
+--card:#151F32;
+--border:#24324D;
+--text:#fff;
+--muted:#A8B3CF;
+--accent:#4F8CFF;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:var(--bg);
+color:var(--text);
+}
+
+.container{
+width:min(900px,92%);
+margin:auto;
+}
+
+header{
+border-bottom:1px solid var(--border);
+padding:20px 0;
+margin-bottom:50px;
+}
+
+.logo{
+font-size:24px;
+font-weight:800;
+}
+
+.logo a{
+color:white;
+text-decoration:none;
+}
+
+.card{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:18px;
+padding:30px;
+}
+
+h1{
+margin-bottom:15px;
+font-size:42px;
+}
+
+.description{
+color:var(--muted);
+margin-bottom:30px;
+line-height:1.6;
+}
+
+.controls{
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+margin-bottom:25px;
+}
+
+button{
+border:none;
+cursor:pointer;
+padding:14px 20px;
+border-radius:12px;
+font-size:16px;
+font-weight:600;
+}
+
+.start{
+background:#22c55e;
+color:white;
+}
+
+.stop{
+background:#ef4444;
+color:white;
+}
+
+.download{
+background:var(--accent);
+color:white;
+text-decoration:none;
+display:none;
+padding:14px 20px;
+border-radius:12px;
+font-weight:600;
+}
+
+audio{
+width:100%;
+margin-top:20px;
+}
+
+.status{
+margin-top:15px;
+color:var(--muted);
+}
+
+footer{
+text-align:center;
+padding:40px;
+color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+<div class="logo">
+<a href="../">ToolForge</a>
+</div>
+</header>
+
+<div class="card">
+
+<h1>Enregistreur Audio</h1>
+
+<p class="description">
+Enregistrez votre voix directement depuis votre navigateur.
+Aucune inscription requise.
+</p>
+
+<div class="controls">
+<button class="start" id="startBtn">Démarrer</button>
+<button class="stop" id="stopBtn" disabled>Arrêter</button>
+
+<a id="downloadLink" class="download">
+Télécharger
+</a>
+</div>
+
+<div class="status" id="status">
+Prêt à enregistrer
+</div>
+
+<audio id="audioPlayer" controls style="display:none;"></audio>
+
+</div>
+
+<footer>
+© ToolForge
+</footer>
+
+</div>
+
+<script>
+
+let mediaRecorder;
+let audioChunks = [];
+
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const audioPlayer = document.getElementById('audioPlayer');
+const downloadLink = document.getElementById('downloadLink');
+const statusText = document.getElementById('status');
+
+startBtn.addEventListener('click', async () => {
+
+try{
+
+const stream = await navigator.mediaDevices.getUserMedia({
+audio:true
+});
+
+audioChunks = [];
+
+mediaRecorder = new MediaRecorder(stream);
+
+mediaRecorder.ondataavailable = event => {
+audioChunks.push(event.data);
+};
+
+mediaRecorder.onstop = () => {
+
+const audioBlob = new Blob(audioChunks,{
+type:'audio/webm'
+});
+
+const audioUrl = URL.createObjectURL(audioBlob);
+
+audioPlayer.src = audioUrl;
+audioPlayer.style.display = 'block';
+
+downloadLink.href = audioUrl;
+downloadLink.download = 'toolforge-recording.webm';
+downloadLink.style.display = 'inline-block';
+
+statusText.textContent = 'Enregistrement terminé';
+};
+
+mediaRecorder.start();
+
+startBtn.disabled = true;
+stopBtn.disabled = false;
+
+statusText.textContent = 'Enregistrement en cours...';
+
+}catch(error){
+
+statusText.textContent =
+'Accès au microphone refusé';
+
+}
+
+});
+
+stopBtn.addEventListener('click', () => {
+
+mediaRecorder.stop();
+
+startBtn.disabled = false;
+stopBtn.disabled = true;
+
+});
+
+</script>
+
+</body>
+</html>

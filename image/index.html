@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ToolForge - Outils gratuits en ligne</title>
+
+<meta name="description" content="ToolForge : suite d’outils gratuits pour audio, image, vidéo et fichiers.">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0B1220;
+  --card:#151F32;
+  --border:#24324D;
+  --text:#fff;
+  --muted:#A8B3CF;
+  --accent:#4F8CFF;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+header{
+  text-align:center;
+  padding:50px 20px;
+}
+
+header h1{
+  font-size:40px;
+  margin-bottom:10px;
+}
+
+header p{
+  color:var(--muted);
+}
+
+.container{
+  width:min(1100px,92%);
+  margin:auto;
+  padding-bottom:60px;
+}
+
+.section{
+  margin-top:40px;
+}
+
+.section h2{
+  margin-bottom:15px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:18px;
+  text-decoration:none;
+  color:white;
+  transition:.2s;
+}
+
+.card:hover{
+  transform:translateY(-3px);
+  border-color:var(--accent);
+}
+
+.small{
+  opacity:.7;
+  font-size:13px;
+  margin-top:5px;
+}
+
+.badge{
+  display:inline-block;
+  padding:4px 8px;
+  font-size:12px;
+  background:#0B1220;
+  border:1px solid var(--border);
+  border-radius:8px;
+  margin-bottom:10px;
+  color:var(--muted);
+}
+
+footer{
+  text-align:center;
+  padding:30px;
+  opacity:.5;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>ToolForge</h1>
+  <p>Suite d’outils gratuits pour fichiers audio & images</p>
+</header>
+
+<div class="container">
+
+<!-- AUDIO -->
+<div class="section">
+<h2>🎧 Audio Tools</h2>
+
+<div class="grid">
+
+<a class="card" href="audio/audio-converter.html">
+<div class="badge">Conversion</div>
+Audio Converter
+<div class="small">MP3 / WAV / OGG / WEBM / M4A</div>
+</a>
+
+<a class="card" href="audio/audio-merger.html">
+<div class="badge">Fusion</div>
+Audio Merger
+<div class="small">Combine plusieurs fichiers</div>
+</a>
+
+<a class="card" href="audio/fade-audio.html">
+<div class="badge">Effet</div>
+Fade Audio
+<div class="small">Fade in / Fade out</div>
+</a>
+
+<a class="card" href="audio/silence-remover.html">
+<div class="badge">Nettoyage</div>
+Silence Remover
+<div class="small">Supprime les silences</div>
+</a>
+
+</div>
+</div>
+
+<!-- IMAGE -->
+<div class="section">
+<h2>🖼️ Image Tools</h2>
+
+<div class="grid">
+
+<a class="card" href="image/image-compressor.html">
+<div class="badge">Optimisation</div>
+Image Compressor
+<div class="small">Réduit la taille des images</div>
+</a>
+
+<a class="card" href="image/image-resize.html">
+<div class="badge">Resize</div>
+Image Resize
+<div class="small">Redimensionnement précis</div>
+</a>
+
+<a class="card" href="image/image-converter.html">
+<div class="badge">Conversion</div>
+Image Converter
+<div class="small">JPG / PNG / WEBP</div>
+</a>
+
+<a class="card" href="image/image-crop.html">
+<div class="badge">Edition</div>
+Image Crop
+<div class="small">Recadrage interactif</div>
+</a>
+
+</div>
+</div>
+
+</div>
+
+<footer>
+ToolForge ©
+</footer>
+
+</body>
+</html>

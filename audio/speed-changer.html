@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Changement de Vitesse Audio - ToolForge</title>
+<meta name="description" content="Accélérez ou ralentissez vos fichiers audio gratuitement en ligne.">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0B1220;
+  --card:#151F32;
+  --border:#24324D;
+  --text:#fff;
+  --muted:#A8B3CF;
+  --accent:#4F8CFF;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.container{
+  width:min(900px,92%);
+  margin:auto;
+  padding:40px 0;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:25px;
+}
+
+h1{margin-bottom:10px}
+p{color:var(--muted);margin-bottom:20px;line-height:1.6}
+
+input, button{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-bottom:10px;
+  background:#0B1220;
+  color:white;
+}
+
+button{
+  background:var(--accent);
+  cursor:pointer;
+  font-weight:600;
+}
+
+audio{
+  width:100%;
+  margin-top:10px;
+}
+
+.status{
+  margin-top:10px;
+  color:var(--muted);
+}
+
+a.download{
+  display:block;
+  text-align:center;
+  padding:12px;
+  margin-top:10px;
+  background:var(--accent);
+  color:white;
+  text-decoration:none;
+  border-radius:10px;
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h1>Changement de Vitesse</h1>
+
+<p>Accélérez ou ralentissez un fichier audio sans perte de qualité.</p>
+
+<input type="file" id="file" accept="audio/*">
+
+<label>Vitesse (1 = normal, 0.5 = ralenti, 2 = x2)</label>
+<input type="number" id="speed" value="1" step="0.1" min="0.1" max="4">
+
+<button id="process">Appliquer</button>
+
+<audio id="preview" controls></audio>
+
+<a id="download" class="download">Télécharger</a>
+
+<div class="status" id="status"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const fileInput = document.getElementById('file');
+const speedInput = document.getElementById('speed');
+const processBtn = document.getElementById('process');
+const preview = document.getElementById('preview');
+const download = document.getElementById('download');
+const status = document.getElementById('status');
+
+let audioContext;
+let buffer;
+
+fileInput.addEventListener('change', async (e) => {
+
+const file = e.target.files[0];
+if(!file) return;
+
+audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+const arrayBuffer = await file.arrayBuffer();
+buffer = await audioContext.decodeAudioData(arrayBuffer);
+
+preview.src = URL.createObjectURL(file);
+
+status.textContent = "Fichier chargé";
+
+});
+
+processBtn.addEventListener('click', () => {
+
+if(!buffer) return;
+
+const speed = parseFloat(speedInput.value) || 1;
+
+const offlineCtx = new OfflineAudioContext(
+buffer.numberOfChannels,
+buffer.length,
+buffer.sampleRate
+);
+
+const source = offlineCtx.createBufferSource();
+source.buffer = buffer;
+
+source.playbackRate.value = speed;
+
+source.connect(offlineCtx.destination);
+source.start();
+
+offlineCtx.startRendering().then(renderedBuffer => {
+
+const wav = bufferToWav(renderedBuffer);
+const url = URL.createObjectURL(wav);
+
+preview.src = url;
+
+download.href = url;
+download.download = "toolforge-speed.wav";
+download.style.display = "block";
+
+status.textContent = "Traitement terminé";
+
+});
+
+});
+
+function bufferToWav(buffer){
+
+const length = buffer.length * buffer.numberOfChannels * 2 + 44;
+const arrayBuffer = new ArrayBuffer(length);
+const view = new DataView(arrayBuffer);
+
+let offset = 0;
+
+function writeString(str){
+for(let i = 0; i < str.length; i++){
+view.setUint8(offset + i, str.charCodeAt(i));
+}
+offset += str.length;
+}
+
+writeString("RIFF");
+view.setUint32(offset, length - 8, true); offset += 4;
+writeString("WAVE");
+writeString("fmt ");
+view.setUint32(offset, 16, true); offset += 4;
+view.setUint16(offset, 1, true); offset += 2;
+view.setUint16(offset, buffer.numberOfChannels, true); offset += 2;
+view.setUint32(offset, buffer.sampleRate, true); offset += 4;
+view.setUint32(offset, buffer.sampleRate * buffer.numberOfChannels * 2, true); offset += 4;
+view.setUint16(offset, buffer.numberOfChannels * 2, true); offset += 2;
+view.setUint16(offset, 16, true); offset += 2;
+
+writeString("data");
+view.setUint32(offset, length - offset - 4, true); offset += 4;
+
+for(let i = 0; i < buffer.numberOfChannels; i++){
+const channelData = buffer.getChannelData(i);
+for(let j = 0; j < channelData.length; j++){
+let sample = Math.max(-1, Math.min(1, channelData[j]));
+view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+offset += 2;
+}
+}
+
+return new Blob([arrayBuffer], { type: "audio/wav" });
+
+}
+
+</script>
+
+</body>
+</html>

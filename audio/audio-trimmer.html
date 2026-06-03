@@ -1,1 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Découpe Audio - ToolForge</title>
+<meta name="description" content="Coupez vos fichiers audio facilement en ligne gratuitement.">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0B1220;
+  --card:#151F32;
+  --border:#24324D;
+  --text:#fff;
+  --muted:#A8B3CF;
+  --accent:#4F8CFF;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Inter, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.container{
+  width:min(900px,92%);
+  margin:auto;
+  padding:40px 0;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:25px;
+}
+
+h1{margin-bottom:10px}
+p{color:var(--muted);margin-bottom:20px;line-height:1.6}
+
+input, button{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-bottom:10px;
+  background:#0B1220;
+  color:white;
+}
+
+button{
+  background:var(--accent);
+  cursor:pointer;
+  font-weight:600;
+}
+
+button:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+audio{
+  width:100%;
+  margin-top:10px;
+}
+
+.status{
+  margin-top:10px;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h1>Découpe Audio</h1>
+<p>Charge un fichier audio, choisis un début et une fin, puis télécharge le résultat.</p>
+
+<input type="file" id="file" accept="audio/*">
+
+<audio id="audio" controls></audio>
+
+<input type="number" id="start" placeholder="Début (secondes)">
+<input type="number" id="end" placeholder="Fin (secondes)">
+
+<button id="cutBtn">Découper</button>
+
+<audio id="result" controls></audio>
+
+<a id="download" style="display:none;display:block;text-align:center;padding:12px;background:#4F8CFF;border-radius:10px;color:white;text-decoration:none;margin-top:10px;">
+Télécharger
+</a>
+
+<div class="status" id="status"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const fileInput = document.getElementById('file');
+const audio = document.getElementById('audio');
+const result = document.getElementById('result');
+const cutBtn = document.getElementById('cutBtn');
+const download = document.getElementById('download');
+const status = document.getElementById('status');
+
+let audioBuffer;
+let audioContext;
+
+fileInput.addEventListener('change', async (e) => {
+
+const file = e.target.files[0];
+
+if(!file) return;
+
+audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+const arrayBuffer = await file.arrayBuffer();
+audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+audio.src = URL.createObjectURL(file);
+
+status.textContent = "Fichier chargé";
+
+});
+
+cutBtn.addEventListener('click', async () => {
+
+if(!audioBuffer) return;
+
+const start = parseFloat(document.getElementById('start').value);
+const end = parseFloat(document.getElementById('end').value);
+
+if(isNaN(start) || isNaN(end) || start >= end){
+status.textContent = "Valeurs invalides";
+return;
+}
+
+const sampleRate = audioBuffer.sampleRate;
+
+const startOffset = start * sampleRate;
+const endOffset = end * sampleRate;
+
+const frameCount = endOffset - startOffset;
+
+const newBuffer = audioContext.createBuffer(
+audioBuffer.numberOfChannels,
+frameCount,
+sampleRate
+);
+
+for(let channel = 0; channel < audioBuffer.numberOfChannels; channel++){
+
+const oldData = audioBuffer.getChannelData(channel);
+const newData = newBuffer.getChannelData(channel);
+
+for(let i = 0; i < frameCount; i++){
+newData[i] = oldData[i + startOffset];
+}
+
+}
+
+const wavBlob = bufferToWav(newBuffer);
+const url = URL.createObjectURL(wavBlob);
+
+result.src = url;
+
+download.href = url;
+download.download = "toolforge-audio-cut.wav";
+download.style.display = "block";
+
+status.textContent = "Découpe terminée";
+
+});
+
+function bufferToWav(buffer){
+
+const length = buffer.length * buffer.numberOfChannels * 2 + 44;
+const arrayBuffer = new ArrayBuffer(length);
+const view = new DataView(arrayBuffer);
+
+let offset = 0;
+
+function writeString(str){
+for(let i = 0; i < str.length; i++){
+view.setUint8(offset + i, str.charCodeAt(i));
+}
+offset += str.length;
+}
+
+writeString("RIFF");
+view.setUint32(offset, length - 8, true); offset += 4;
+writeString("WAVE");
+writeString("fmt ");
+view.setUint32(offset, 16, true); offset += 4;
+view.setUint16(offset, 1, true); offset += 2;
+view.setUint16(offset, buffer.numberOfChannels, true); offset += 2;
+view.setUint32(offset, buffer.sampleRate, true); offset += 4;
+view.setUint32(offset, buffer.sampleRate * buffer.numberOfChannels * 2, true); offset += 4;
+view.setUint16(offset, buffer.numberOfChannels * 2, true); offset += 2;
+view.setUint16(offset, 16, true); offset += 2;
+
+writeString("data");
+view.setUint32(offset, length - offset - 4, true); offset += 4;
+
+for(let i = 0; i < buffer.numberOfChannels; i++){
+const channelData = buffer.getChannelData(i);
+for(let j = 0; j < channelData.length; j++){
+let sample = Math.max(-1, Math.min(1, channelData[j]));
+view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+offset += 2;
+}
+}
+
+return new Blob([arrayBuffer], { type: "audio/wav" });
+
+}
+
+</script>
+
+</body>
+</html>

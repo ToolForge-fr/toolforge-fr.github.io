@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Convertisseur d'Image - ToolForge</title>
+<meta name="description" content="Convertissez vos images en JPG, PNG ou WEBP en ligne gratuitement.">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0B1220;
+  --card:#151F32;
+  --border:#24324D;
+  --text:#fff;
+  --muted:#A8B3CF;
+  --accent:#4F8CFF;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.container{
+  width:min(900px,92%);
+  margin:auto;
+  padding:40px 0;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:25px;
+}
+
+h1{margin-bottom:10px}
+p{color:var(--muted);margin-bottom:20px;line-height:1.6}
+
+input, select, button{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-bottom:10px;
+  background:#0B1220;
+  color:white;
+}
+
+button{
+  background:var(--accent);
+  cursor:pointer;
+  font-weight:600;
+}
+
+img{
+  width:100%;
+  margin-top:10px;
+  border-radius:10px;
+}
+
+.status{
+  margin-top:10px;
+  color:var(--muted);
+}
+
+a.download{
+  display:block;
+  text-align:center;
+  padding:12px;
+  margin-top:10px;
+  background:var(--accent);
+  color:white;
+  text-decoration:none;
+  border-radius:10px;
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h1>Convertisseur d’image</h1>
+
+<p>Convertis tes images en JPG, PNG ou WEBP facilement.</p>
+
+<input type="file" id="file" accept="image/*">
+
+<select id="format">
+  <option value="image/jpeg">JPG</option>
+  <option value="image/png">PNG</option>
+  <option value="image/webp">WEBP</option>
+</select>
+
+<button id="convert">Convertir</button>
+
+<img id="preview">
+
+<a id="download" class="download">Télécharger</a>
+
+<div class="status" id="status"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const fileInput = document.getElementById('file');
+const formatSelect = document.getElementById('format');
+const convertBtn = document.getElementById('convert');
+const preview = document.getElementById('preview');
+const download = document.getElementById('download');
+const status = document.getElementById('status');
+
+let imageFile;
+
+fileInput.addEventListener('change', (e) => {
+
+imageFile = e.target.files[0];
+if(!imageFile) return;
+
+preview.src = URL.createObjectURL(imageFile);
+
+status.textContent = "Image chargée";
+
+});
+
+convertBtn.addEventListener('click', () => {
+
+if(!imageFile) return;
+
+const format = formatSelect.value;
+
+const img = new Image();
+
+img.onload = () => {
+
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = img.width;
+canvas.height = img.height;
+
+ctx.drawImage(img, 0, 0);
+
+canvas.toBlob((blob) => {
+
+const url = URL.createObjectURL(blob);
+
+preview.src = url;
+
+let ext = "jpg";
+if(format === "image/png") ext = "png";
+if(format === "image/webp") ext = "webp";
+
+download.href = url;
+download.download = `toolforge-converted.${ext}`;
+download.style.display = "block";
+
+status.textContent = "Conversion terminée";
+
+}, format, 0.92);
+
+};
+
+img.src = URL.createObjectURL(imageFile);
+
+});
+
+</script>
+
+</body>
+</html>

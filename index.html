@@ -5,65 +5,450 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>ToolForge - Outils en ligne gratuits</title>
-<meta name="description" content="Outils gratuits : audio, vidéo, image, PDF, screen recorder, QR generator.">
+<meta name="description" content="ToolForge rassemble des outils gratuits pour l'audio, la vidéo, les images, les PDF, les QR codes, le texte et les développeurs. Sans inscription.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-body{
+
+:root{
+  --bg:#0B1220;
+  --card:#151F32;
+  --border:#24324D;
+  --text:#FFFFFF;
+  --muted:#A8B3CF;
+  --accent:#4F8CFF;
+}
+
+*{
   margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.container{
+  width:min(1200px,92%);
+  margin:auto;
 }
 
 header{
-  text-align:center;
-  padding:50px 20px;
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  background:rgba(11,18,32,.95);
+  backdrop-filter:blur(10px);
 }
 
-h1{font-size:40px;margin:0;}
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 0;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:800;
+}
+
+.menu{
+  display:flex;
+  gap:22px;
+  flex-wrap:wrap;
+}
+
+.menu a{
+  color:var(--muted);
+}
+
+.menu a:hover{
+  color:white;
+}
+
+.hero{
+  text-align:center;
+  padding:90px 0;
+}
+
+.hero h1{
+  font-size:clamp(42px,7vw,72px);
+  margin-bottom:20px;
+}
+
+.hero p{
+  max-width:700px;
+  margin:auto;
+  color:var(--muted);
+  font-size:20px;
+  line-height:1.7;
+}
+
+.hero-buttons{
+  margin-top:35px;
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  padding:14px 24px;
+  border-radius:12px;
+  border:1px solid var(--border);
+}
+
+.btn-primary{
+  background:var(--accent);
+  border:none;
+}
+
+.stats{
+  padding-bottom:80px;
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+}
+
+.stat{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:25px;
+  text-align:center;
+}
+
+.stat-number{
+  font-size:34px;
+  font-weight:800;
+}
+
+.stat-label{
+  margin-top:10px;
+  color:var(--muted);
+}
+
+.section{
+  padding:80px 0;
+}
+
+.section-title{
+  text-align:center;
+  margin-bottom:50px;
+}
+
+.section-title h2{
+  font-size:40px;
+  margin-bottom:10px;
+}
+
+.section-title p{
+  color:var(--muted);
+}
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:15px;
-  max-width:900px;
-  margin:auto;
-  padding:20px;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
 }
 
 .card{
-  background:#1e293b;
-  padding:20px;
-  border-radius:12px;
-  text-decoration:none;
-  color:white;
-  transition:0.2s;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:24px;
+  transition:.2s;
 }
 
 .card:hover{
-  transform:scale(1.03);
-  background:#273449;
+  transform:translateY(-4px);
+  border-color:var(--accent);
 }
-</style>
 
+.card h3{
+  margin-bottom:12px;
+}
+
+.card p{
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.features{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:20px;
+}
+
+.feature{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:24px;
+}
+
+.feature h3{
+  margin-bottom:10px;
+}
+
+.feature p{
+  color:var(--muted);
+}
+
+.faq-item{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:15px;
+}
+
+.faq-item p{
+  margin-top:10px;
+  color:var(--muted);
+}
+
+footer{
+  border-top:1px solid var(--border);
+  margin-top:60px;
+}
+
+.footer{
+  padding:40px 0;
+  text-align:center;
+  color:var(--muted);
+}
+
+.footer-links{
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+
+</style>
 </head>
 
 <body>
 
 <header>
-<h1>ToolForge</h1>
-<p>Suite d’outils gratuits en ligne</p>
+  <div class="container nav">
+    <div class="logo">ToolForge</div>
+
+    <nav class="menu">
+      <a href="audio/">Audio</a>
+      <a href="video/">Vidéo</a>
+      <a href="image/">Image</a>
+      <a href="pdf/">PDF</a>
+      <a href="qr/">QR</a>
+      <a href="text/">Texte</a>
+    </nav>
+  </div>
 </header>
 
-<div class="grid">
+<section class="hero container">
 
-<a class="card" href="audio/">Audio Tools</a>
-<a class="card" href="video/">Video Tools</a>
-<a class="card" href="image/">Image Tools</a>
-<a class="card" href="screen/">Screen Recorder</a>
-<a class="card" href="pdf/">PDF Tools</a>
+  <h1>Tous vos outils en ligne gratuits</h1>
 
-</div>
+  <p>
+    Convertissez, compressez, découpez et créez directement depuis votre navigateur.
+    Sans installation. Sans inscription.
+  </p>
+
+  <div class="hero-buttons">
+    <a href="#categories" class="btn btn-primary">Explorer les outils</a>
+    <a href="#popular" class="btn">Outils populaires</a>
+  </div>
+
+</section>
+
+<section class="stats container">
+
+  <div class="stats-grid">
+
+    <div class="stat">
+      <div class="stat-number">9</div>
+      <div class="stat-label">Catégories</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-number">70+</div>
+      <div class="stat-label">Outils prévus</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-number">100%</div>
+      <div class="stat-label">Gratuit</div>
+    </div>
+
+  </div>
+
+</section>
+
+<section id="categories" class="section container">
+
+  <div class="section-title">
+    <h2>Catégories</h2>
+    <p>Trouvez rapidement l'outil dont vous avez besoin.</p>
+  </div>
+
+  <div class="grid">
+
+    <a class="card" href="audio/">
+      <h3>Audio</h3>
+      <p>Découper, convertir et modifier des fichiers audio.</p>
+    </a>
+
+    <a class="card" href="video/">
+      <h3>Vidéo</h3>
+      <p>Découper, convertir et compresser vos vidéos.</p>
+    </a>
+
+    <a class="card" href="image/">
+      <h3>Image</h3>
+      <p>Compresser, recadrer et convertir des images.</p>
+    </a>
+
+    <a class="card" href="pdf/">
+      <h3>PDF</h3>
+      <p>Fusionner, séparer et transformer vos PDF.</p>
+    </a>
+
+    <a class="card" href="screen/">
+      <h3>Enregistrement d'écran</h3>
+      <p>Capturer votre écran ou votre webcam.</p>
+    </a>
+
+    <a class="card" href="qr/">
+      <h3>QR & Codes-barres</h3>
+      <p>Créer et scanner des QR codes.</p>
+    </a>
+
+    <a class="card" href="text/">
+      <h3>Texte</h3>
+      <p>Analyser et transformer du texte.</p>
+    </a>
+
+    <a class="card" href="developer/">
+      <h3>Développeurs</h3>
+      <p>JSON, Regex, Base64 et autres utilitaires.</p>
+    </a>
+
+    <a class="card" href="utilities/">
+      <h3>Utilitaires</h3>
+      <p>Convertisseurs, minuteurs et générateurs.</p>
+    </a>
+
+  </div>
+
+</section>
+
+<section id="popular" class="section container">
+
+  <div class="section-title">
+    <h2>Outils populaires</h2>
+  </div>
+
+  <div class="grid">
+
+    <div class="card"><h3>Compresseur d'image</h3></div>
+    <div class="card"><h3>Générateur QR</h3></div>
+    <div class="card"><h3>Découpe audio</h3></div>
+    <div class="card"><h3>Fusion PDF</h3></div>
+    <div class="card"><h3>Screen Recorder</h3></div>
+    <div class="card"><h3>JSON Formatter</h3></div>
+
+  </div>
+
+</section>
+
+<section class="section container">
+
+  <div class="section-title">
+    <h2>Pourquoi ToolForge ?</h2>
+  </div>
+
+  <div class="features">
+
+    <div class="feature">
+      <h3>Gratuit</h3>
+      <p>Accès libre à tous les outils.</p>
+    </div>
+
+    <div class="feature">
+      <h3>Sans inscription</h3>
+      <p>Aucun compte requis.</p>
+    </div>
+
+    <div class="feature">
+      <h3>Rapide</h3>
+      <p>Utilisation immédiate depuis votre navigateur.</p>
+    </div>
+
+    <div class="feature">
+      <h3>Simple</h3>
+      <p>Interface claire et sans distractions.</p>
+    </div>
+
+  </div>
+
+</section>
+
+<section class="section container">
+
+  <div class="section-title">
+    <h2>Questions fréquentes</h2>
+  </div>
+
+  <div class="faq-item">
+    <h3>Les outils sont-ils gratuits ?</h3>
+    <p>Oui, l'ensemble des outils est accessible gratuitement.</p>
+  </div>
+
+  <div class="faq-item">
+    <h3>Dois-je créer un compte ?</h3>
+    <p>Non, aucune inscription n'est nécessaire.</p>
+  </div>
+
+  <div class="faq-item">
+    <h3>Mes fichiers sont-ils privés ?</h3>
+    <p>Lorsque cela est possible, les traitements sont réalisés directement dans le navigateur.</p>
+  </div>
+
+</section>
+
+<footer>
+  <div class="container footer">
+
+    <div class="footer-links">
+      <a href="#">À propos</a>
+      <a href="#">Contact</a>
+      <a href="#">Confidentialité</a>
+      <a href="#">Conditions</a>
+    </div>
+
+    <div>
+      © ToolForge
+    </div>
+
+  </div>
+</footer>
 
 </body>
 </html>

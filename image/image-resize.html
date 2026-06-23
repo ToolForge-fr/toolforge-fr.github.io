@@ -76,7 +76,7 @@ margin-top:20px;
 height:500px;
 background:#0B1220;
 border-radius:15px;
-display:flex;
+display:none;
 align-items:center;
 justify-content:center;
 overflow:hidden;
@@ -85,7 +85,7 @@ position:relative;
 
 .box{
 position:relative;
-display:none;
+display:inline-block;
 }
 
 .box img{
@@ -102,18 +102,25 @@ background:var(--accent);
 border-radius:2px;
 }
 
-.handle.corner{cursor:nwse-resize}
-.handle.side{border-radius:50%;cursor:ew-resize}
+.corner{cursor:nwse-resize}
+.side{border-radius:50%;cursor:ew-resize}
 
-.tl{top:-7px;left:-7px}
-.tr{top:-7px;right:-7px}
-.bl{bottom:-7px;left:-7px}
-.br{bottom:-7px;right:-7px}
+/* handles CORRECT direction */
+.tl{top:-7px;left:-7px;cursor:nwse-resize}
+.tr{top:-7px;right:-7px;cursor:nesw-resize}
+.bl{bottom:-7px;left:-7px;cursor:nesw-resize}
+.br{bottom:-7px;right:-7px;cursor:nwse-resize}
 
-.t{top:-7px;left:50%;transform:translateX(-50%)}
-.b{bottom:-7px;left:50%;transform:translateX(-50%)}
-.l{left:-7px;top:50%;transform:translateY(-50%)}
-.r{right:-7px;top:50%;transform:translateY(-50%)}
+.t{top:-7px;left:50%;transform:translateX(-50%);cursor:ns-resize}
+.b{bottom:-7px;left:50%;transform:translateX(-50%);cursor:ns-resize}
+.l{left:-7px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+.r{right:-7px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+
+.checkbox{
+margin-top:10px;
+color:var(--muted);
+font-size:14px;
+}
 
 .download{
 display:none;
@@ -143,18 +150,11 @@ margin-top:10px;
 
 <h1>Redimensionneur d’Image</h1>
 
-<p>Redimensionnez vos images librement avec ou sans proportions.</p>
+<p>Redimensionnez vos images avec ou sans proportions.</p>
 
 <input type="file" id="file" accept="image/*">
 
-<label>
-<input type="checkbox" id="ratio" checked>
-Garder les proportions
-</label>
-
-<button id="export">Télécharger</button>
-
-<div class="workspace">
+<div class="workspace" id="workspace">
 
 <div class="box" id="box">
 
@@ -174,6 +174,15 @@ Garder les proportions
 
 </div>
 
+<div class="checkbox" id="ratioBox" style="display:none;">
+<label>
+<input type="checkbox" id="ratio" checked>
+Garder les proportions
+</label>
+</div>
+
+<button id="export">Télécharger</button>
+
 <a id="download" class="download">Télécharger</a>
 
 <div class="status" id="status"></div>
@@ -187,11 +196,15 @@ Garder les proportions
 const file=document.getElementById("file");
 const img=document.getElementById("img");
 const box=document.getElementById("box");
+const workspace=document.getElementById("workspace");
+
 const ratio=document.getElementById("ratio");
+const ratioBox=document.getElementById("ratioBox");
+
 const download=document.getElementById("download");
 const status=document.getElementById("status");
 
-let w=300,h=300;
+let w=0,h=0;
 let dragging=null;
 let startX,startY,startW,startH;
 
@@ -206,7 +219,9 @@ w=img.naturalWidth;
 h=img.naturalHeight;
 
 apply();
-box.style.display="inline-block";
+
+workspace.style.display="flex";
+ratioBox.style.display="block";
 
 status.textContent="Image chargée";
 }
@@ -239,18 +254,25 @@ if(!dragging)return;
 let dx=e.clientX-startX;
 let dy=e.clientY-startY;
 
-if(dragging.includes("r")) w=startW+dx;
-if(dragging.includes("l")) w=startW-dx;
-if(dragging.includes("b")) h=startH+dy;
-if(dragging.includes("t")) h=startH-dy;
+let newW=startW;
+let newH=startH;
 
+// horizontal
+if(dragging.includes("r")) newW=startW+dx;
+if(dragging.includes("l")) newW=startW-dx;
+
+// vertical
+if(dragging.includes("b")) newH=startH+dy;
+if(dragging.includes("t")) newH=startH-dy;
+
+// ratio LOCKED
 if(ratio.checked){
 const r=startW/startH;
-h=w/r;
+newH=newW/r;
 }
 
-w=Math.max(50,w);
-h=Math.max(50,h);
+w=Math.max(50,newW);
+h=Math.max(50,newH);
 
 apply();
 };

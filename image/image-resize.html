@@ -52,7 +52,6 @@ h1{margin-bottom:10px}
 p{
 color:var(--muted);
 margin-bottom:20px;
-line-height:1.6;
 }
 
 input,button{
@@ -90,8 +89,7 @@ display:inline-block;
 
 .box img{
 display:block;
-max-width:100%;
-max-height:450px;
+transform-origin:center;
 }
 
 .handle{
@@ -102,10 +100,6 @@ background:var(--accent);
 border-radius:2px;
 }
 
-.corner{cursor:nwse-resize}
-.side{border-radius:50%;cursor:ew-resize}
-
-/* handles CORRECT direction */
 .tl{top:-7px;left:-7px;cursor:nwse-resize}
 .tr{top:-7px;right:-7px;cursor:nesw-resize}
 .bl{bottom:-7px;left:-7px;cursor:nesw-resize}
@@ -120,6 +114,7 @@ border-radius:2px;
 margin-top:10px;
 color:var(--muted);
 font-size:14px;
+display:none;
 }
 
 .download{
@@ -150,7 +145,7 @@ margin-top:10px;
 
 <h1>Redimensionneur d’Image</h1>
 
-<p>Redimensionnez vos images avec ou sans proportions.</p>
+<p>Redimensionnez vos images sans déformation involontaire.</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -160,21 +155,21 @@ margin-top:10px;
 
 <img id="img">
 
-<div class="handle corner tl"></div>
-<div class="handle corner tr"></div>
-<div class="handle corner bl"></div>
-<div class="handle corner br"></div>
+<div class="handle tl"></div>
+<div class="handle tr"></div>
+<div class="handle bl"></div>
+<div class="handle br"></div>
 
-<div class="handle side t"></div>
-<div class="handle side b"></div>
-<div class="handle side l"></div>
-<div class="handle side r"></div>
-
-</div>
+<div class="handle t"></div>
+<div class="handle b"></div>
+<div class="handle l"></div>
+<div class="handle r"></div>
 
 </div>
 
-<div class="checkbox" id="ratioBox" style="display:none;">
+</div>
+
+<div class="checkbox" id="ratioBox">
 <label>
 <input type="checkbox" id="ratio" checked>
 Garder les proportions
@@ -195,7 +190,6 @@ Garder les proportions
 
 const file=document.getElementById("file");
 const img=document.getElementById("img");
-const box=document.getElementById("box");
 const workspace=document.getElementById("workspace");
 
 const ratio=document.getElementById("ratio");
@@ -204,7 +198,10 @@ const ratioBox=document.getElementById("ratioBox");
 const download=document.getElementById("download");
 const status=document.getElementById("status");
 
-let w=0,h=0;
+let naturalW,naturalH;
+let w,h;
+let scale=1;
+
 let dragging=null;
 let startX,startY,startW,startH;
 
@@ -215,8 +212,18 @@ if(!f)return;
 img.src=URL.createObjectURL(f);
 
 img.onload=()=>{
-w=img.naturalWidth;
-h=img.naturalHeight;
+
+naturalW=img.naturalWidth;
+naturalH=img.naturalHeight;
+
+// FIT DANS WORKSPACE (important fix bug carré + trop grand)
+const maxW=600;
+const maxH=400;
+
+scale=Math.min(maxW/naturalW,maxH/naturalH,1);
+
+w=naturalW*scale;
+h=naturalH*scale;
 
 apply();
 
@@ -242,7 +249,7 @@ startH=h;
 
 document.querySelectorAll(".handle").forEach(h=>{
 h.onmousedown=e=>{
-start(h.classList[2],e);
+start(h.classList[1],e);
 };
 });
 
@@ -257,22 +264,20 @@ let dy=e.clientY-startY;
 let newW=startW;
 let newH=startH;
 
-// horizontal
+// resize logique
 if(dragging.includes("r")) newW=startW+dx;
 if(dragging.includes("l")) newW=startW-dx;
-
-// vertical
 if(dragging.includes("b")) newH=startH+dy;
 if(dragging.includes("t")) newH=startH-dy;
 
-// ratio LOCKED
+// ratio
 if(ratio.checked){
 const r=startW/startH;
 newH=newW/r;
 }
 
-w=Math.max(50,newW);
-h=Math.max(50,newH);
+w=Math.max(30,newW);
+h=Math.max(30,newH);
 
 apply();
 };
@@ -282,10 +287,10 @@ document.getElementById("export").onclick=()=>{
 const canvas=document.createElement("canvas");
 const ctx=canvas.getContext("2d");
 
-canvas.width=w;
-canvas.height=h;
+canvas.width=naturalW*(w/(naturalW*scale));
+canvas.height=naturalH*(h/(naturalH*scale));
 
-ctx.drawImage(img,0,0,w,h);
+ctx.drawImage(img,0,0,canvas.width,canvas.height);
 
 const url=canvas.toDataURL("image/png");
 
@@ -300,4 +305,5 @@ status.textContent="Image exportée";
 </script>
 
 </body>
+
 </html>

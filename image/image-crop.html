@@ -48,11 +48,6 @@ padding:25px;
 
 h1{margin-bottom:10px}
 
-p{
-color:var(--muted);
-margin-bottom:20px;
-}
-
 input,button{
 width:100%;
 padding:12px;
@@ -69,7 +64,7 @@ cursor:pointer;
 font-weight:600;
 }
 
-/* WORKSPACE */
+/* workspace = image container STRICT */
 .workspace{
 margin-top:20px;
 height:500px;
@@ -89,27 +84,24 @@ display:block;
 position:relative;
 }
 
-/* DARK OVERLAY */
+/* DARK MASK */
 .overlay{
 position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.45);
+inset:0;
+background:rgba(0,0,0,0.4);
 pointer-events:none;
 }
 
-/* CUTOUT HOLE */
-.cutout{
+/* CROP BOX */
+.crop{
 position:absolute;
 border:2px solid var(--accent);
 background:transparent;
-box-shadow:0 0 0 9999px rgba(0,0,0,0.45);
+box-shadow:0 0 0 9999px rgba(0,0,0,0.4);
 cursor:move;
 }
 
-/* HANDLES */
+/* HANDLES (8 TOTAL) */
 .handle{
 position:absolute;
 width:10px;
@@ -122,28 +114,26 @@ background:var(--accent);
 .bl{bottom:-5px;left:-5px;cursor:nesw-resize}
 .br{bottom:-5px;right:-5px;cursor:nwse-resize}
 
+.tm{top:-5px;left:50%;transform:translateX(-50%);cursor:ns-resize}
+.bm{bottom:-5px;left:50%;transform:translateX(-50%);cursor:ns-resize}
+.ml{left:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+.mr{right:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+
 /* PREVIEW */
 .preview{
 margin-top:20px;
 display:flex;
 flex-direction:column;
-gap:15px;
+gap:10px;
 }
 
-.preview-item{
-background:var(--card);
-border:1px solid var(--border);
-border-radius:12px;
-padding:10px;
-}
-
-.preview-item img{
+.preview img{
 width:100%;
 border-radius:10px;
-margin-bottom:8px;
+border:1px solid var(--border);
 }
 
-.download-btn{
+.download{
 display:block;
 text-align:center;
 padding:10px;
@@ -151,11 +141,9 @@ background:var(--accent);
 color:white;
 border-radius:10px;
 text-decoration:none;
-font-weight:600;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -166,8 +154,6 @@ font-weight:600;
 
 <h1>Recadrage d’image</h1>
 
-<p>Style mobile avec zone grisée + export propre.</p>
-
 <input type="file" id="file" accept="image/*">
 
 <div class="workspace" id="workspace">
@@ -176,12 +162,18 @@ font-weight:600;
 
 <div class="overlay"></div>
 
-<div class="cutout" id="crop">
+<div class="crop" id="crop">
 
+<!-- 8 poignées -->
 <div class="handle tl"></div>
 <div class="handle tr"></div>
 <div class="handle bl"></div>
 <div class="handle br"></div>
+
+<div class="handle tm"></div>
+<div class="handle bm"></div>
+<div class="handle ml"></div>
+<div class="handle mr"></div>
 
 </div>
 
@@ -208,7 +200,7 @@ let scale=1;
 let naturalW=0;
 let naturalH=0;
 
-// LOAD
+/* LOAD IMAGE */
 file.onchange=e=>{
 const f=e.target.files[0];
 if(!f)return;
@@ -230,7 +222,7 @@ workspace.style.display="flex";
 };
 };
 
-// MOVE + RESIZE WITH LIMITS
+/* MOVE + RESIZE */
 let mode=null;
 let sx,sy,sl,st,sw,sh;
 
@@ -268,36 +260,25 @@ let y=st;
 let w=sw;
 let h=sh;
 
+/* MOVE */
 if(mode==="move"){
 x=sl+dx;
 y=st+dy;
 }
 
-if(mode==="tl"){
-x=sl+dx;
-y=st+dy;
-w=sw-dx;
-h=sh-dy;
-}
+/* CORNERS */
+if(mode==="tl"){x=sl+dx;y=st+dy;w=sw-dx;h=sh-dy;}
+if(mode==="tr"){y=st+dy;w=sw+dx;h=sh-dy;}
+if(mode==="bl"){x=sl+dx;w=sw-dx;h=sh+dy;}
+if(mode==="br"){w=sw+dx;h=sh+dy;}
 
-if(mode==="tr"){
-y=st+dy;
-w=sw+dx;
-h=sh-dy;
-}
+/* SIDES */
+if(mode==="tm"){y=st+dy;h=sh-dy;}
+if(mode==="bm"){h=sh+dy;}
+if(mode==="ml"){x=sl+dx;w=sw-dx;}
+if(mode==="mr"){w=sw+dx;}
 
-if(mode==="bl"){
-x=sl+dx;
-w=sw-dx;
-h=sh+dy;
-}
-
-if(mode==="br"){
-w=sw+dx;
-h=sh+dy;
-}
-
-// LIMIT TO IMAGE AREA
+/* STRICT LIMITS TO IMAGE */
 const maxW=workspace.clientWidth;
 const maxH=workspace.clientHeight;
 
@@ -313,7 +294,7 @@ crop.style.width=w+"px";
 crop.style.height=h+"px";
 };
 
-// CROP EXPORT
+/* EXPORT */
 document.getElementById("cropBtn").onclick=()=>{
 
 const canvas=document.createElement("canvas");
@@ -339,21 +320,12 @@ ctx.drawImage(temp,x,y,w,h,0,0,w,h);
 
 const url=canvas.toDataURL("image/png");
 
-// create preview block
 const box=document.createElement("div");
-box.className="preview-item";
+box.innerHTML=`
+<img src="${url}">
+<a class="download" href="${url}" download="toolforge-crop.png">Télécharger</a>
+`;
 
-const im=document.createElement("img");
-im.src=url;
-
-const a=document.createElement("a");
-a.className="download-btn";
-a.textContent="Télécharger";
-a.href=url;
-a.download="toolforge-crop.png";
-
-box.appendChild(im);
-box.appendChild(a);
 preview.appendChild(box);
 
 };

@@ -68,6 +68,7 @@ line-height:1.6;
 
 
 input,button{
+
 width:100%;
 padding:12px;
 border-radius:10px;
@@ -75,60 +76,170 @@ border:1px solid var(--border);
 margin-bottom:10px;
 background:#0B1220;
 color:white;
+
 }
 
 
 button{
+
 background:var(--accent);
 cursor:pointer;
 font-weight:600;
+
 }
 
 
+/* couleur */
 
-/* panneau vert */
 
-#colorPanel{
+.color-zone{
 
-display:none;
-padding:15px;
-border:1px solid var(--border);
-border-radius:12px;
 margin-bottom:15px;
 
 }
 
 
-.colorBtn{
+#selectedColor{
 
-margin-bottom:8px;
+width:45px;
+height:45px;
+
+border-radius:50%;
+
+background:#00ff00;
+
+border:2px solid white;
+
+cursor:pointer;
 
 }
 
 
-#picker{
+#colorPanel{
 
-background:#24324D;
+display:none;
+
+padding:15px;
+
+border:1px solid var(--border);
+
+border-radius:15px;
+
+margin-top:15px;
+
+background:#0B1220;
+
+}
+
+
+
+#colorBox{
+
+height:220px;
+
+width:100%;
+
+border-radius:12px;
+
+position:relative;
+
+cursor:pointer;
+
+
+background:
+linear-gradient(to right,#fff,transparent),
+linear-gradient(to bottom,#000,transparent),
+hsl(120,100%,50%);
+
+}
+
+
+
+#colorCursor{
+
+position:absolute;
+
+width:18px;
+height:18px;
+
+border-radius:50%;
+
+border:2px solid white;
+
+box-shadow:0 0 5px black;
+
+left:50%;
+top:50%;
+
+}
+
+
+
+#hue{
+
+height:15px;
+
+margin-top:15px;
+
+background:
+linear-gradient(
+90deg,
+red,
+yellow,
+lime,
+cyan,
+blue,
+magenta,
+red
+);
+
+}
+
+
+
+#pipettePreview{
+
+position:fixed;
+
+width:90px;
+
+height:90px;
+
+border-radius:50%;
+
+border:3px solid white;
+
+pointer-events:none;
+
+display:none;
+
+z-index:999;
+
+box-shadow:0 0 15px black;
 
 }
 
 
 
 
-/* preview */
 
 .preview-before{
 
 display:none;
+
 margin-top:20px;
 
 }
+
 
 
 .preview-before img{
 
 width:100%;
+
 border-radius:10px;
+
+cursor:crosshair;
 
 }
 
@@ -136,16 +247,20 @@ border-radius:10px;
 
 
 
-/* comparaison */
-
 .compare{
 
 position:relative;
+
 width:100%;
+
 height:500px;
+
 overflow:hidden;
+
 border-radius:10px;
+
 margin-top:20px;
+
 display:none;
 
 background:#0B1220;
@@ -159,6 +274,7 @@ background:#0B1220;
 position:absolute;
 
 width:100%;
+
 height:100%;
 
 object-fit:contain;
@@ -167,25 +283,23 @@ object-fit:contain;
 
 
 
-
 .before{
 
 clip-path:inset(0 50% 0 0);
+
 z-index:2;
 
 }
-
-
 
 
 
 .after{
 
 clip-path:inset(0 0 0 50%);
+
 z-index:2;
 
 }
-
 
 
 
@@ -194,9 +308,11 @@ z-index:2;
 position:absolute;
 
 top:0;
+
 left:50%;
 
 height:100%;
+
 width:3px;
 
 background:white;
@@ -212,29 +328,26 @@ z-index:5;
 position:absolute;
 
 top:50%;
-left:50%;
 
+left:50%;
 
 transform:translate(-50%,-50%);
 
-
 width:42px;
-height:42px;
 
+height:42px;
 
 border-radius:50%;
 
-
 background:var(--accent);
 
-
 display:flex;
+
 align-items:center;
+
 justify-content:center;
 
-
 font-size:20px;
-
 
 box-shadow:0 0 12px #000;
 
@@ -275,7 +388,6 @@ color:var(--muted);
 }
 
 
-
 </style>
 
 </head>
@@ -286,9 +398,7 @@ color:var(--muted);
 
 <div class="container">
 
-
 <div class="card">
-
 
 
 <h1>Suppression de fond</h1>
@@ -299,19 +409,13 @@ Supprimez automatiquement l’arrière-plan de vos images directement dans le na
 </p>
 
 
-
-
 <input type="file" id="file" accept="image/*">
 
 
 
+<label style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
 
-<label style="display:flex;gap:10px;align-items:center;margin-bottom:15px;">
-
-<input 
-type="checkbox" 
-id="greenMode"
-style="width:auto;">
+<input id="greenMode" type="checkbox" style="width:auto">
 
 Fond vert
 
@@ -319,33 +423,44 @@ Fond vert
 
 
 
+<div class="color-zone">
+
+
+<div id="selectedColor"></div>
+
+
 
 <div id="colorPanel">
 
 
-<button class="colorBtn" data-color="0,255,0">
-Vert
-</button>
+<div id="colorBox">
+
+<div id="colorCursor"></div>
+
+</div>
 
 
-<button class="colorBtn" data-color="0,200,0">
-Vert foncé
-</button>
+
+<input id="hue" type="range" min="0" max="360" value="120">
 
 
-<button class="colorBtn" data-color="0,255,255">
-Cyan
-</button>
-
-
-<button id="picker">
-🖌 Pipette
+<button id="validateColor">
+Valider
 </button>
 
 
 </div>
 
 
+</div>
+
+
+
+
+
+<button id="picker">
+🖌 Pipette
+</button>
 
 
 
@@ -357,14 +472,11 @@ Supprimer le fond
 
 
 
-
-
 <div class="preview-before">
 
 <img id="beforePreview">
 
 </div>
-
 
 
 
@@ -381,7 +493,6 @@ Supprimer le fond
 
 <div class="slider" id="slider">
 
-
 <div class="handle">
 ⇆
 </div>
@@ -394,31 +505,21 @@ Supprimer le fond
 
 
 
-
-
 <a id="download" class="download">
 Télécharger
 </a>
 
 
-
-
 <div class="status" id="status"></div>
 
 
-
-
 </div>
 
 </div>
 
 
-
-
-
-
+<div id="pipettePreview"></div>
 <script>
-
 
 const fileInput=document.getElementById("file");
 const removeBtn=document.getElementById("remove");
@@ -435,13 +536,39 @@ const status=document.getElementById("status");
 
 
 const greenMode=document.getElementById("greenMode");
-const colorPanel=document.getElementById("colorPanel");
-const picker=document.getElementById("picker");
+
+const selectedColorBox=
+document.getElementById("selectedColor");
+
+const colorPanel=
+document.getElementById("colorPanel");
+
+const colorBox=
+document.getElementById("colorBox");
+
+const colorCursor=
+document.getElementById("colorCursor");
+
+const hue=
+document.getElementById("hue");
+
+const validateColor=
+document.getElementById("validateColor");
+
+const picker=
+document.getElementById("picker");
+
+const pipettePreview=
+document.getElementById("pipettePreview");
+
 
 
 let imageFile=null;
-let selectedColor=null;
+
+let selectedColor=[0,255,0];
+
 let picking=false;
+
 
 
 
@@ -458,20 +585,121 @@ greenMode.checked ? "block":"none";
 
 
 
-document.querySelectorAll(".colorBtn")
-.forEach(btn=>{
+selectedColorBox.onclick=()=>{
 
 
-btn.onclick=()=>{
+colorPanel.style.display="block";
 
-selectedColor=
-btn.dataset.color
-.split(",")
-.map(Number);
 
 };
 
-});
+
+
+
+
+function updateColor(){
+
+
+let h=hue.value;
+
+
+colorBox.style.background=
+
+`
+linear-gradient(to right,#fff,transparent),
+linear-gradient(to bottom,#000,transparent),
+hsl(${h},100%,50%)
+`;
+
+
+
+let canvas=document.createElement("canvas");
+
+canvas.width=1;
+canvas.height=1;
+
+
+let ctx=canvas.getContext("2d");
+
+
+ctx.fillStyle=
+`hsl(${h},100%,50%)`;
+
+ctx.fillRect(0,0,1,1);
+
+
+
+let p=
+ctx.getImageData(0,0,1,1).data;
+
+
+selectedColor=[
+
+p[0],
+p[1],
+p[2]
+
+];
+
+
+selectedColorBox.style.background=
+
+`rgb(${p[0]},${p[1]},${p[2]})`;
+
+
+}
+
+
+
+
+
+colorBox.onclick=e=>{
+
+
+let rect=
+colorBox.getBoundingClientRect();
+
+
+
+let x=
+e.clientX-rect.left;
+
+
+let y=
+e.clientY-rect.top;
+
+
+
+colorCursor.style.left=x+"px";
+
+colorCursor.style.top=y+"px";
+
+
+updateColor();
+
+
+};
+
+
+
+
+hue.oninput=updateColor;
+
+
+
+
+validateColor.onclick=()=>{
+
+
+colorPanel.style.display="none";
+
+
+status.textContent=
+"Couleur sélectionnée";
+
+
+};
+
 
 
 
@@ -480,10 +708,13 @@ btn.dataset.color
 
 picker.onclick=()=>{
 
+
 picking=true;
 
+
 status.textContent=
-"Cliquez sur une couleur dans l'image";
+"Sélectionnez une couleur";
+
 
 };
 
@@ -492,10 +723,22 @@ status.textContent=
 
 
 
-beforePreview.onclick=e=>{
+beforePreview.addEventListener(
+"mousemove",
+e=>{
 
 
 if(!picking)return;
+
+
+
+pipettePreview.style.display="block";
+
+pipettePreview.style.left=
+e.clientX+15+"px";
+
+pipettePreview.style.top=
+e.clientY+15+"px";
 
 
 
@@ -504,11 +747,12 @@ const canvas=document.createElement("canvas");
 const ctx=canvas.getContext("2d");
 
 
+canvas.width=
+beforePreview.naturalWidth;
 
-canvas.width=beforePreview.naturalWidth;
 
-canvas.height=beforePreview.naturalHeight;
-
+canvas.height=
+beforePreview.naturalHeight;
 
 
 ctx.drawImage(
@@ -527,8 +771,7 @@ beforePreview.getBoundingClientRect();
 let x=
 (e.clientX-rect.left)
 /
-rect.width
-*
+rect.width*
 canvas.width;
 
 
@@ -536,15 +779,12 @@ canvas.width;
 let y=
 (e.clientY-rect.top)
 /
-rect.height
-*
+rect.height*
 canvas.height;
 
 
 
-
-
-let pixel=
+let p=
 ctx.getImageData(
 Math.floor(x),
 Math.floor(y),
@@ -554,18 +794,96 @@ Math.floor(y),
 
 
 
+pipettePreview.style.background=
+
+`rgb(${p[0]},${p[1]},${p[2]})`;
+
+
+});
+
+
+
+
+
+
+
+beforePreview.onclick=e=>{
+
+
+if(!picking)return;
+
+
+picking=false;
+
+
+pipettePreview.style.display="none";
+
+
+
+const canvas=document.createElement("canvas");
+
+const ctx=canvas.getContext("2d");
+
+
+canvas.width=
+beforePreview.naturalWidth;
+
+
+canvas.height=
+beforePreview.naturalHeight;
+
+
+ctx.drawImage(
+beforePreview,
+0,
+0
+);
+
+
+
+const rect=
+beforePreview.getBoundingClientRect();
+
+
+
+let x=
+(e.clientX-rect.left)
+/
+rect.width*
+canvas.width;
+
+
+let y=
+(e.clientY-rect.top)
+/
+rect.height*
+canvas.height;
+
+
+
+let p=
+ctx.getImageData(
+Math.floor(x),
+Math.floor(y),
+1,
+1
+).data;
+
+
 
 selectedColor=[
 
-pixel[0],
-pixel[1],
-pixel[2]
+p[0],
+p[1],
+p[2]
 
 ];
 
 
+selectedColorBox.style.background=
 
-picking=false;
+`rgb(${p[0]},${p[1]},${p[2]})`;
+
 
 
 status.textContent=
@@ -573,6 +891,8 @@ status.textContent=
 
 
 };
+
+
 
 
 
@@ -589,7 +909,7 @@ if(!imageFile)return;
 
 
 
-const url=
+let url=
 URL.createObjectURL(imageFile);
 
 
@@ -598,14 +918,13 @@ before.src=url;
 
 beforePreview.src=url;
 
-after.src="";
 
+after.src="";
 
 
 compare.style.display="none";
 
 download.style.display="none";
-
 
 
 document.querySelector(".preview-before")
@@ -616,8 +935,8 @@ document.querySelector(".preview-before")
 status.textContent=
 "Image chargée";
 
-
 };
+
 
 
 
@@ -632,7 +951,8 @@ if(!imageFile)return;
 
 
 
-const img=new Image();
+
+let img=new Image();
 
 
 img.src=
@@ -640,13 +960,14 @@ URL.createObjectURL(imageFile);
 
 
 
+
 img.onload=()=>{
 
 
 
-const canvas=document.createElement("canvas");
+let canvas=document.createElement("canvas");
 
-const ctx=canvas.getContext("2d");
+let ctx=canvas.getContext("2d");
 
 
 
@@ -660,7 +981,7 @@ ctx.drawImage(img,0,0);
 
 
 
-const imageData=
+let imageData=
 ctx.getImageData(
 0,
 0,
@@ -670,69 +991,44 @@ canvas.height
 
 
 
-const data=imageData.data;
+let data=imageData.data;
 
 
 
-/* couleur moyenne des bords */
 
+let bg=[0,0,0];
 
-let colors=[];
-
-
-
-function sample(x,y){
-
-let i=(y*canvas.width+x)*4;
-
-colors.push([
-
-data[i],
-data[i+1],
-data[i+2]
-
-]);
-
-}
+let count=0;
 
 
 
-for(let x=0;x<canvas.width;x+=20){
 
-sample(x,0);
+for(
+let x=0;
+x<canvas.width;
+x+=20
+){
 
-sample(x,canvas.height-1);
+let i=x*4;
+
+
+bg[0]+=data[i];
+bg[1]+=data[i+1];
+bg[2]+=data[i+2];
+
+count++;
 
 }
 
 
 
-for(let y=0;y<canvas.height;y+=20){
-
-sample(0,y);
-
-sample(canvas.width-1,y);
-
-}
 
 
+bg[0]/=count;
 
-let avg=[0,0,0];
+bg[1]/=count;
 
-
-colors.forEach(c=>{
-
-avg[0]+=c[0];
-avg[1]+=c[1];
-avg[2]+=c[2];
-
-});
-
-
-avg[0]/=colors.length;
-avg[1]/=colors.length;
-avg[2]/=colors.length;
-
+bg[2]/=count;
 
 
 
@@ -744,7 +1040,9 @@ for(let i=0;i<data.length;i+=4){
 
 
 let r=data[i];
+
 let g=data[i+1];
+
 let b=data[i+2];
 
 
@@ -753,12 +1051,9 @@ let remove=false;
 
 
 
-/* fond vert */
 
-if(
-greenMode.checked &&
-selectedColor
-){
+if(greenMode.checked){
+
 
 
 let d=Math.sqrt(
@@ -772,29 +1067,27 @@ let d=Math.sqrt(
 
 
 if(d<100)
+
 remove=true;
 
 
 }
-
-
-
-/* automatique */
 
 else{
 
 
 let d=Math.sqrt(
 
-(r-avg[0])**2+
-(g-avg[1])**2+
-(b-avg[2])**2
+(r-bg[0])**2+
+(g-bg[1])**2+
+(b-bg[2])**2
 
 );
 
 
 
-if(d<80)
+if(d<90)
+
 remove=true;
 
 
@@ -802,14 +1095,14 @@ remove=true;
 
 
 
-if(remove){
+
+if(remove)
 
 data[i+3]=0;
 
-}
-
 
 }
+
 
 
 
@@ -822,27 +1115,24 @@ imageData,
 
 
 
-const url=
+
+let url=
 canvas.toDataURL("image/png");
+
 
 
 
 after.src=url;
 
 
-
 compare.style.display="block";
-
-
-
-slider.style.left="50%";
-
 
 
 download.href=url;
 
+
 download.download=
-"toolforge-transparent.png";
+"toolforge-background.png";
 
 
 download.style.display="block";
@@ -866,13 +1156,12 @@ status.textContent=
 
 
 
-/* slider */
 
 let dragging=false;
 
 
-
 compare.onmousedown=()=>dragging=true;
+
 
 window.onmouseup=()=>dragging=false;
 
@@ -885,12 +1174,13 @@ if(!dragging)return;
 
 
 
-const rect=
+let rect=
 compare.getBoundingClientRect();
 
 
 
-let x=e.clientX-rect.left;
+let x=
+e.clientX-rect.left;
 
 
 
@@ -922,7 +1212,6 @@ before.style.clipPath=
 `inset(0 0 0 ${percent}%)`;
 
 
-
 };
 
 
@@ -931,5 +1220,4 @@ before.style.clipPath=
 
 
 </body>
-
 </html>

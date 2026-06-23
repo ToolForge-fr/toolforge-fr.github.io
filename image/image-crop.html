@@ -86,6 +86,7 @@ overflow:hidden;
 max-width:100%;
 max-height:100%;
 display:block;
+position:relative;
 }
 
 .crop{
@@ -138,7 +139,7 @@ margin-top:10px;
 
 <h1>Recadrage d’Image</h1>
 
-<p>Sélectionnez une zone de votre image.</p>
+<p>Sélectionnez une zone à recadrer.</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -172,9 +173,7 @@ margin-top:10px;
 const file=document.getElementById("file");
 const img=document.getElementById("img");
 const workspace=document.getElementById("workspace");
-
 const crop=document.getElementById("crop");
-
 const download=document.getElementById("download");
 const status=document.getElementById("status");
 
@@ -193,7 +192,7 @@ img.onload=()=>{
 imgW=img.naturalWidth;
 imgH=img.naturalHeight;
 
-// fit workspace
+// fit image workspace
 const maxW=700;
 const maxH=450;
 
@@ -208,7 +207,7 @@ status.textContent="Image chargée";
 };
 };
 
-// drag crop box
+// MOVE crop
 let dragging=false;
 let startX,startY,startLeft,startTop;
 
@@ -225,11 +224,8 @@ window.onmouseup=()=>dragging=false;
 window.onmousemove=e=>{
 if(!dragging)return;
 
-let dx=e.clientX-startX;
-let dy=e.clientY-startY;
-
-crop.style.left=startLeft+dx+"px";
-crop.style.top=startTop+dy+"px";
+crop.style.left=startLeft+(e.clientX-startX)+"px";
+crop.style.top=startTop+(e.clientY-startY)+"px";
 };
 
 // EXPORT
@@ -238,13 +234,14 @@ document.getElementById("export").onclick=()=>{
 const canvas=document.createElement("canvas");
 const ctx=canvas.getContext("2d");
 
-const rect=crop.getBoundingClientRect();
 const imgRect=img.getBoundingClientRect();
+const cropRect=crop.getBoundingClientRect();
 
-const x=(rect.left-imgRect.left)/scale;
-const y=(rect.top-imgRect.top)/scale;
-const w=rect.width/scale;
-const h=rect.height/scale;
+// conversion coords image réelle
+const x=(cropRect.left-imgRect.left)/scale;
+const y=(cropRect.top-imgRect.top)/scale;
+const w=cropRect.width/scale;
+const h=cropRect.height/scale;
 
 canvas.width=w;
 canvas.height=h;

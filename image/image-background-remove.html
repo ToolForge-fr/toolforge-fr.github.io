@@ -68,7 +68,6 @@ line-height:1.6;
 
 
 input,button{
-
 width:100%;
 padding:12px;
 border-radius:10px;
@@ -76,17 +75,43 @@ border:1px solid var(--border);
 margin-bottom:10px;
 background:#0B1220;
 color:white;
-
 }
 
 
 button{
-
 background:var(--accent);
 cursor:pointer;
 font-weight:600;
+}
+
+
+
+/* panneau vert */
+
+#colorPanel{
+
+display:none;
+padding:15px;
+border:1px solid var(--border);
+border-radius:12px;
+margin-bottom:15px;
 
 }
+
+
+.colorBtn{
+
+margin-bottom:8px;
+
+}
+
+
+#picker{
+
+background:#24324D;
+
+}
+
 
 
 
@@ -110,6 +135,7 @@ border-radius:10px;
 
 
 
+
 /* comparaison */
 
 .compare{
@@ -128,37 +154,9 @@ background:#0B1220;
 
 
 
-
-/* damier transparence */
-
-.transparent-bg{
-
-position:absolute;
-inset:0;
-
-background:
-linear-gradient(45deg,#888 25%,transparent 25%),
-linear-gradient(-45deg,#888 25%,transparent 25%),
-linear-gradient(45deg,transparent 75%,#888 75%),
-linear-gradient(-45deg,transparent 75%,#888 75%);
-
-background-size:30px 30px;
-background-position:
-0 0,
-0 15px,
-15px -15px,
--15px 0;
-
-z-index:0;
-
-}
-
-
-
 .compare img{
 
 position:absolute;
-inset:0;
 
 width:100%;
 height:100%;
@@ -173,7 +171,6 @@ object-fit:contain;
 .before{
 
 clip-path:inset(0 50% 0 0);
-
 z-index:2;
 
 }
@@ -181,10 +178,10 @@ z-index:2;
 
 
 
+
 .after{
 
 clip-path:inset(0 0 0 50%);
-
 z-index:2;
 
 }
@@ -200,7 +197,6 @@ top:0;
 left:50%;
 
 height:100%;
-
 width:3px;
 
 background:white;
@@ -218,24 +214,32 @@ position:absolute;
 top:50%;
 left:50%;
 
+
 transform:translate(-50%,-50%);
+
 
 width:42px;
 height:42px;
 
+
 border-radius:50%;
 
+
 background:var(--accent);
+
 
 display:flex;
 align-items:center;
 justify-content:center;
 
+
 font-size:20px;
+
 
 box-shadow:0 0 12px #000;
 
 }
+
 
 
 
@@ -274,7 +278,6 @@ color:var(--muted);
 
 </style>
 
-
 </head>
 
 
@@ -287,6 +290,7 @@ color:var(--muted);
 <div class="card">
 
 
+
 <h1>Suppression de fond</h1>
 
 
@@ -296,7 +300,52 @@ Supprimez automatiquement l’arrière-plan de vos images directement dans le na
 
 
 
+
 <input type="file" id="file" accept="image/*">
+
+
+
+
+<label style="display:flex;gap:10px;align-items:center;margin-bottom:15px;">
+
+<input 
+type="checkbox" 
+id="greenMode"
+style="width:auto;">
+
+Fond vert
+
+</label>
+
+
+
+
+<div id="colorPanel">
+
+
+<button class="colorBtn" data-color="0,255,0">
+Vert
+</button>
+
+
+<button class="colorBtn" data-color="0,200,0">
+Vert foncé
+</button>
+
+
+<button class="colorBtn" data-color="0,255,255">
+Cyan
+</button>
+
+
+<button id="picker">
+🖌 Pipette
+</button>
+
+
+</div>
+
+
 
 
 
@@ -305,6 +354,7 @@ Supprimez automatiquement l’arrière-plan de vos images directement dans le na
 Supprimer le fond
 
 </button>
+
 
 
 
@@ -320,9 +370,6 @@ Supprimer le fond
 
 
 <div class="compare" id="compare">
-
-
-<div class="transparent-bg"></div>
 
 
 <img id="before">
@@ -350,9 +397,7 @@ Supprimer le fond
 
 
 <a id="download" class="download">
-
 Télécharger
-
 </a>
 
 
@@ -362,9 +407,11 @@ Télécharger
 
 
 
+
 </div>
 
 </div>
+
 
 
 
@@ -374,44 +421,176 @@ Télécharger
 
 
 const fileInput=document.getElementById("file");
-
 const removeBtn=document.getElementById("remove");
 
-
 const before=document.getElementById("before");
-
 const after=document.getElementById("after");
-
 const beforePreview=document.getElementById("beforePreview");
 
-
 const compare=document.getElementById("compare");
-
 const slider=document.getElementById("slider");
 
-
 const download=document.getElementById("download");
-
 const status=document.getElementById("status");
 
 
+const greenMode=document.getElementById("greenMode");
+const colorPanel=document.getElementById("colorPanel");
+const picker=document.getElementById("picker");
+
+
 let imageFile=null;
+let selectedColor=null;
+let picking=false;
 
 
 
 
-fileInput.addEventListener("change",e=>{
+
+greenMode.onchange=()=>{
+
+colorPanel.style.display =
+greenMode.checked ? "block":"none";
+
+};
 
 
-const file=e.target.files[0];
-
-if(!file)return;
 
 
-imageFile=file;
+
+document.querySelectorAll(".colorBtn")
+.forEach(btn=>{
 
 
-const url=URL.createObjectURL(file);
+btn.onclick=()=>{
+
+selectedColor=
+btn.dataset.color
+.split(",")
+.map(Number);
+
+};
+
+});
+
+
+
+
+
+
+picker.onclick=()=>{
+
+picking=true;
+
+status.textContent=
+"Cliquez sur une couleur dans l'image";
+
+};
+
+
+
+
+
+
+beforePreview.onclick=e=>{
+
+
+if(!picking)return;
+
+
+
+const canvas=document.createElement("canvas");
+
+const ctx=canvas.getContext("2d");
+
+
+
+canvas.width=beforePreview.naturalWidth;
+
+canvas.height=beforePreview.naturalHeight;
+
+
+
+ctx.drawImage(
+beforePreview,
+0,
+0
+);
+
+
+
+const rect=
+beforePreview.getBoundingClientRect();
+
+
+
+let x=
+(e.clientX-rect.left)
+/
+rect.width
+*
+canvas.width;
+
+
+
+let y=
+(e.clientY-rect.top)
+/
+rect.height
+*
+canvas.height;
+
+
+
+
+
+let pixel=
+ctx.getImageData(
+Math.floor(x),
+Math.floor(y),
+1,
+1
+).data;
+
+
+
+
+selectedColor=[
+
+pixel[0],
+pixel[1],
+pixel[2]
+
+];
+
+
+
+picking=false;
+
+
+status.textContent=
+"Couleur sélectionnée";
+
+
+};
+
+
+
+
+
+
+fileInput.onchange=e=>{
+
+
+imageFile=e.target.files[0];
+
+
+if(!imageFile)return;
+
+
+
+const url=
+URL.createObjectURL(imageFile);
 
 
 
@@ -419,8 +598,8 @@ before.src=url;
 
 beforePreview.src=url;
 
-
 after.src="";
+
 
 
 compare.style.display="none";
@@ -428,13 +607,18 @@ compare.style.display="none";
 download.style.display="none";
 
 
-document.querySelector(".preview-before").style.display="block";
+
+document.querySelector(".preview-before")
+.style.display="block";
 
 
-status.textContent="Image chargée";
+
+status.textContent=
+"Image chargée";
 
 
-});
+};
+
 
 
 
@@ -451,11 +635,13 @@ if(!imageFile)return;
 const img=new Image();
 
 
-img.src=URL.createObjectURL(imageFile);
+img.src=
+URL.createObjectURL(imageFile);
 
 
 
 img.onload=()=>{
+
 
 
 const canvas=document.createElement("canvas");
@@ -474,7 +660,8 @@ ctx.drawImage(img,0,0);
 
 
 
-const data=ctx.getImageData(
+const imageData=
+ctx.getImageData(
 0,
 0,
 canvas.width,
@@ -483,26 +670,141 @@ canvas.height
 
 
 
-for(let i=0;i<data.data.length;i+=4){
-
-
-let r=data.data[i];
-
-let g=data.data[i+1];
-
-let b=data.data[i+2];
+const data=imageData.data;
 
 
 
-/* suppression fond clair */
+/* couleur moyenne des bords */
+
+
+let colors=[];
+
+
+
+function sample(x,y){
+
+let i=(y*canvas.width+x)*4;
+
+colors.push([
+
+data[i],
+data[i+1],
+data[i+2]
+
+]);
+
+}
+
+
+
+for(let x=0;x<canvas.width;x+=20){
+
+sample(x,0);
+
+sample(x,canvas.height-1);
+
+}
+
+
+
+for(let y=0;y<canvas.height;y+=20){
+
+sample(0,y);
+
+sample(canvas.width-1,y);
+
+}
+
+
+
+let avg=[0,0,0];
+
+
+colors.forEach(c=>{
+
+avg[0]+=c[0];
+avg[1]+=c[1];
+avg[2]+=c[2];
+
+});
+
+
+avg[0]/=colors.length;
+avg[1]/=colors.length;
+avg[2]/=colors.length;
+
+
+
+
+
+
+
+for(let i=0;i<data.length;i+=4){
+
+
+
+let r=data[i];
+let g=data[i+1];
+let b=data[i+2];
+
+
+
+let remove=false;
+
+
+
+/* fond vert */
 
 if(
-r>220 &&
-g>220 &&
-b>220
+greenMode.checked &&
+selectedColor
 ){
 
-data.data[i+3]=0;
+
+let d=Math.sqrt(
+
+(r-selectedColor[0])**2+
+(g-selectedColor[1])**2+
+(b-selectedColor[2])**2
+
+);
+
+
+
+if(d<100)
+remove=true;
+
+
+}
+
+
+
+/* automatique */
+
+else{
+
+
+let d=Math.sqrt(
+
+(r-avg[0])**2+
+(g-avg[1])**2+
+(b-avg[2])**2
+
+);
+
+
+
+if(d<80)
+remove=true;
+
+
+}
+
+
+
+if(remove){
+
+data[i+3]=0;
 
 }
 
@@ -511,18 +813,27 @@ data.data[i+3]=0;
 
 
 
-ctx.putImageData(data,0,0);
+
+ctx.putImageData(
+imageData,
+0,
+0
+);
 
 
 
-const url=canvas.toDataURL("image/png");
+const url=
+canvas.toDataURL("image/png");
 
 
 
 after.src=url;
 
 
+
 compare.style.display="block";
+
+
 
 slider.style.left="50%";
 
@@ -530,19 +841,25 @@ slider.style.left="50%";
 
 download.href=url;
 
-download.download="toolforge-remove-background.png";
+download.download=
+"toolforge-transparent.png";
+
 
 download.style.display="block";
 
 
 
-status.textContent="Fond supprimé";
+status.textContent=
+"Fond supprimé";
 
 
 };
 
 
+
 };
+
+
 
 
 
@@ -555,36 +872,26 @@ let dragging=false;
 
 
 
-compare.addEventListener("mousedown",()=>{
+compare.onmousedown=()=>dragging=true;
 
-dragging=true;
-
-});
+window.onmouseup=()=>dragging=false;
 
 
 
-window.addEventListener("mouseup",()=>{
-
-dragging=false;
-
-});
-
-
-
-
-
-window.addEventListener("mousemove",e=>{
+window.onmousemove=e=>{
 
 
 if(!dragging)return;
 
 
 
-const rect=compare.getBoundingClientRect();
+const rect=
+compare.getBoundingClientRect();
 
 
 
 let x=e.clientX-rect.left;
+
 
 
 x=Math.max(
@@ -597,11 +904,13 @@ rect.width
 
 
 
-let percent=x/rect.width*100;
+let percent=
+x/rect.width*100;
 
 
 
-slider.style.left=percent+"%";
+slider.style.left=
+percent+"%";
 
 
 
@@ -614,7 +923,7 @@ before.style.clipPath=
 
 
 
-});
+};
 
 
 

@@ -152,7 +152,7 @@ margin-top:10px;
 
 <h1>Redimensionneur d’Image</h1>
 
-<p>Redimensionnez vos images sans déformation.</p>
+<p>Redimensionnez vos images avec largeur et hauteur.</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -176,13 +176,20 @@ margin-top:10px;
 
 </div>
 
-<div class="checkbox" id="ratioBox" style="display:none;">
+<!-- INPUTS RESTAURÉS -->
+<label>Largeur</label>
+<input type="number" id="width">
+
+<label>Hauteur</label>
+<input type="number" id="height">
+
+<div class="checkbox">
 <label>
 <input type="checkbox" id="ratio" checked>
 Garder les proportions de l'image
 </label>
 </div>
-<br>
+
 <button id="export">Télécharger</button>
 
 <a id="download" class="download">Télécharger</a>
@@ -198,7 +205,11 @@ Garder les proportions de l'image
 const file=document.getElementById("file");
 const img=document.getElementById("img");
 const workspace=document.getElementById("workspace");
+
+const width=document.getElementById("width");
+const height=document.getElementById("height");
 const ratio=document.getElementById("ratio");
+
 const download=document.getElementById("download");
 const status=document.getElementById("status");
 
@@ -219,28 +230,47 @@ img.onload=()=>{
 naturalW=img.naturalWidth;
 naturalH=img.naturalHeight;
 
-// FIT workspace (évite image énorme)
-const maxW=600;
-const maxH=400;
-
-const scale=Math.min(maxW/naturalW,maxH/naturalH,1);
+const scale=Math.min(600/naturalW,400/naturalH,1);
 
 w=naturalW*scale;
 h=naturalH*scale;
 
-apply();
+applyInputs();
+applyImage();
 
 workspace.style.display="flex";
-document.getElementById("ratioBox").style.display="flex";
 
 status.textContent="Image chargée";
 };
 };
 
-function apply(){
+function applyImage(){
 img.style.width=w+"px";
 img.style.height=h+"px";
 }
+
+function applyInputs(){
+width.value=Math.round(w);
+height.value=Math.round(h);
+}
+
+width.oninput=()=>{
+if(ratio.checked){
+height.value=Math.round(width.value/(naturalW/naturalH));
+}
+w=Number(width.value);
+h=Number(height.value);
+applyImage();
+};
+
+height.oninput=()=>{
+if(ratio.checked){
+width.value=Math.round(height.value*(naturalW/naturalH));
+}
+w=Number(width.value);
+h=Number(height.value);
+applyImage();
+};
 
 function start(type,e){
 dragging=type;
@@ -267,25 +297,21 @@ let dy=e.clientY-startY;
 let newW=startW;
 let newH=startH;
 
-// resize
 if(dragging.includes("r")) newW=startW+dx;
 if(dragging.includes("l")) newW=startW-dx;
 if(dragging.includes("b")) newH=startH+dy;
 if(dragging.includes("t")) newH=startH-dy;
 
-// ratio LOCK (corrigé)
 if(ratio.checked){
 const r=naturalW/naturalH;
-
-// on force cohérence stable
 newH=newW/r;
 }
 
-// clamp minimal sans casser ratio
 w=Math.max(30,newW);
 h=Math.max(30,newH);
 
-apply();
+applyImage();
+applyInputs();
 };
 
 document.getElementById("export").onclick=()=>{
@@ -318,4 +344,5 @@ status.textContent="Image exportée";
 </script>
 
 </body>
+
 </html>

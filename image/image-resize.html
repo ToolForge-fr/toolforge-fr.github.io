@@ -114,7 +114,14 @@ border-radius:2px;
 margin-top:10px;
 color:var(--muted);
 font-size:14px;
-display:none;
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.checkbox input{
+width:auto;
+margin:0;
 }
 
 .download{
@@ -145,13 +152,13 @@ margin-top:10px;
 
 <h1>Redimensionneur d’Image</h1>
 
-<p>Redimensionnez vos images sans déformation involontaire.</p>
+<p>Redimensionnez vos images sans déformation.</p>
 
 <input type="file" id="file" accept="image/*">
 
 <div class="workspace" id="workspace">
 
-<div class="box" id="box">
+<div class="box">
 
 <img id="img">
 
@@ -169,10 +176,10 @@ margin-top:10px;
 
 </div>
 
-<div class="checkbox" id="ratioBox">
+<div class="checkbox" id="ratioBox" style="display:none;">
 <label>
 <input type="checkbox" id="ratio" checked>
-Garder les proportions
+Garder les proportions de l'image
 </label>
 </div>
 
@@ -191,16 +198,12 @@ Garder les proportions
 const file=document.getElementById("file");
 const img=document.getElementById("img");
 const workspace=document.getElementById("workspace");
-
 const ratio=document.getElementById("ratio");
-const ratioBox=document.getElementById("ratioBox");
-
 const download=document.getElementById("download");
 const status=document.getElementById("status");
 
 let naturalW,naturalH;
 let w,h;
-let scale=1;
 
 let dragging=null;
 let startX,startY,startW,startH;
@@ -216,11 +219,11 @@ img.onload=()=>{
 naturalW=img.naturalWidth;
 naturalH=img.naturalHeight;
 
-// FIT DANS WORKSPACE (important fix bug carré + trop grand)
+// FIT workspace (évite image énorme)
 const maxW=600;
 const maxH=400;
 
-scale=Math.min(maxW/naturalW,maxH/naturalH,1);
+const scale=Math.min(maxW/naturalW,maxH/naturalH,1);
 
 w=naturalW*scale;
 h=naturalH*scale;
@@ -228,10 +231,10 @@ h=naturalH*scale;
 apply();
 
 workspace.style.display="flex";
-ratioBox.style.display="block";
+document.getElementById("ratioBox").style.display="flex";
 
 status.textContent="Image chargée";
-}
+};
 };
 
 function apply(){
@@ -264,18 +267,21 @@ let dy=e.clientY-startY;
 let newW=startW;
 let newH=startH;
 
-// resize logique
+// resize
 if(dragging.includes("r")) newW=startW+dx;
 if(dragging.includes("l")) newW=startW-dx;
 if(dragging.includes("b")) newH=startH+dy;
 if(dragging.includes("t")) newH=startH-dy;
 
-// ratio
+// ratio LOCK (corrigé)
 if(ratio.checked){
-const r=startW/startH;
+const r=naturalW/naturalH;
+
+// on force cohérence stable
 newH=newW/r;
 }
 
+// clamp minimal sans casser ratio
 w=Math.max(30,newW);
 h=Math.max(30,newH);
 
@@ -287,8 +293,15 @@ document.getElementById("export").onclick=()=>{
 const canvas=document.createElement("canvas");
 const ctx=canvas.getContext("2d");
 
-canvas.width=naturalW*(w/(naturalW*scale));
-canvas.height=naturalH*(h/(naturalH*scale));
+let outW=w;
+let outH=h;
+
+if(ratio.checked){
+outH=outW/(naturalW/naturalH);
+}
+
+canvas.width=outW;
+canvas.height=outH;
 
 ctx.drawImage(img,0,0,canvas.width,canvas.height);
 
@@ -305,5 +318,4 @@ status.textContent="Image exportée";
 </script>
 
 </body>
-
 </html>

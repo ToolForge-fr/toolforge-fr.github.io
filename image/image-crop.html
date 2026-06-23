@@ -69,6 +69,7 @@ cursor:pointer;
 font-weight:600;
 }
 
+/* WORKSPACE */
 .workspace{
 margin-top:20px;
 height:500px;
@@ -85,18 +86,30 @@ align-items:center;
 max-width:100%;
 max-height:100%;
 display:block;
+position:relative;
 }
 
-.crop{
+/* DARK OVERLAY */
+.overlay{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.45);
+pointer-events:none;
+}
+
+/* CUTOUT HOLE */
+.cutout{
 position:absolute;
 border:2px solid var(--accent);
-left:80px;
-top:80px;
-width:200px;
-height:200px;
+background:transparent;
+box-shadow:0 0 0 9999px rgba(0,0,0,0.45);
 cursor:move;
 }
 
+/* HANDLES */
 .handle{
 position:absolute;
 width:10px;
@@ -109,21 +122,36 @@ background:var(--accent);
 .bl{bottom:-5px;left:-5px;cursor:nesw-resize}
 .br{bottom:-5px;right:-5px;cursor:nwse-resize}
 
-.tm{top:-5px;left:50%;transform:translateX(-50%);cursor:ns-resize}
-.bm{bottom:-5px;left:50%;transform:translateX(-50%);cursor:ns-resize}
-.ml{left:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}
-.mr{right:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}
-
+/* PREVIEW */
 .preview{
 margin-top:20px;
 display:flex;
-flex-wrap:wrap;
-gap:10px;
+flex-direction:column;
+gap:15px;
 }
 
-.preview img{
-border-radius:10px;
+.preview-item{
+background:var(--card);
 border:1px solid var(--border);
+border-radius:12px;
+padding:10px;
+}
+
+.preview-item img{
+width:100%;
+border-radius:10px;
+margin-bottom:8px;
+}
+
+.download-btn{
+display:block;
+text-align:center;
+padding:10px;
+background:var(--accent);
+color:white;
+border-radius:10px;
+text-decoration:none;
+font-weight:600;
 }
 
 </style>
@@ -138,7 +166,7 @@ border:1px solid var(--border);
 
 <h1>Recadrage d’image</h1>
 
-<p>Style mobile avec poignées de redimensionnement.</p>
+<p>Style mobile avec zone grisée + export propre.</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -146,17 +174,14 @@ border:1px solid var(--border);
 
 <img id="img">
 
-<div class="crop" id="crop">
+<div class="overlay"></div>
+
+<div class="cutout" id="crop">
 
 <div class="handle tl"></div>
 <div class="handle tr"></div>
 <div class="handle bl"></div>
 <div class="handle br"></div>
-
-<div class="handle tm"></div>
-<div class="handle bm"></div>
-<div class="handle ml"></div>
-<div class="handle mr"></div>
 
 </div>
 
@@ -205,12 +230,12 @@ workspace.style.display="flex";
 };
 };
 
-// MOVE + RESIZE STATE
+// MOVE + RESIZE WITH LIMITS
 let mode=null;
 let sx,sy,sl,st,sw,sh;
 
-function start(type,e){
-mode=type;
+function start(m,e){
+mode=m;
 sx=e.clientX;
 sy=e.clientY;
 sl=crop.offsetLeft;
@@ -272,14 +297,15 @@ w=sw+dx;
 h=sh+dy;
 }
 
-// clamp
-const maxX=workspace.clientWidth;
-const maxY=workspace.clientHeight;
+// LIMIT TO IMAGE AREA
+const maxW=workspace.clientWidth;
+const maxH=workspace.clientHeight;
 
-x=Math.max(0,Math.min(x,maxX-w));
-y=Math.max(0,Math.min(y,maxY-h));
-w=Math.max(30,w);
-h=Math.max(30,h);
+w=Math.max(40,Math.min(w,maxW-x));
+h=Math.max(40,Math.min(h,maxH-y));
+
+x=Math.max(0,Math.min(x,maxW-w));
+y=Math.max(0,Math.min(y,maxH-h));
 
 crop.style.left=x+"px";
 crop.style.top=y+"px";
@@ -287,7 +313,7 @@ crop.style.width=w+"px";
 crop.style.height=h+"px";
 };
 
-// EXPORT
+// CROP EXPORT
 document.getElementById("cropBtn").onclick=()=>{
 
 const canvas=document.createElement("canvas");
@@ -313,13 +339,22 @@ ctx.drawImage(temp,x,y,w,h,0,0,w,h);
 
 const url=canvas.toDataURL("image/png");
 
-// preview 100% size crop
+// create preview block
+const box=document.createElement("div");
+box.className="preview-item";
+
 const im=document.createElement("img");
 im.src=url;
-im.style.width=w+"px";
-im.style.height=h+"px";
 
-preview.appendChild(im);
+const a=document.createElement("a");
+a.className="download-btn";
+a.textContent="Télécharger";
+a.href=url;
+a.download="toolforge-crop.png";
+
+box.appendChild(im);
+box.appendChild(a);
+preview.appendChild(box);
 
 };
 

@@ -48,6 +48,12 @@ padding:25px;
 
 h1{margin-bottom:10px}
 
+p{
+color:var(--muted);
+margin-bottom:20px;
+}
+
+/* INPUTS */
 input,button{
 width:100%;
 padding:12px;
@@ -64,7 +70,7 @@ cursor:pointer;
 font-weight:600;
 }
 
-/* workspace = image container STRICT */
+/* WORKSPACE */
 .workspace{
 margin-top:20px;
 height:500px;
@@ -77,14 +83,14 @@ justify-content:center;
 align-items:center;
 }
 
+/* IMAGE (IMPORTANT REFERENCE) */
 #img{
+display:block;
 max-width:100%;
 max-height:100%;
-display:block;
-position:relative;
 }
 
-/* DARK MASK */
+/* OVERLAY */
 .overlay{
 position:absolute;
 inset:0;
@@ -96,12 +102,11 @@ pointer-events:none;
 .crop{
 position:absolute;
 border:2px solid var(--accent);
-background:transparent;
 box-shadow:0 0 0 9999px rgba(0,0,0,0.4);
 cursor:move;
 }
 
-/* HANDLES (8 TOTAL) */
+/* HANDLES */
 .handle{
 position:absolute;
 width:10px;
@@ -141,9 +146,11 @@ background:var(--accent);
 color:white;
 border-radius:10px;
 text-decoration:none;
+font-weight:600;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -153,6 +160,11 @@ text-decoration:none;
 <div class="card">
 
 <h1>Recadrage d’image</h1>
+
+<!-- 🔥 DESCRIPTION RESTAURÉE (IDENTIQUE INDEX IMAGE) -->
+<p>
+Recadrez vos images JPG, PNG et WEBP gratuitement en ligne.
+</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -164,7 +176,6 @@ text-decoration:none;
 
 <div class="crop" id="crop">
 
-<!-- 8 poignées -->
 <div class="handle tl"></div>
 <div class="handle tr"></div>
 <div class="handle bl"></div>
@@ -213,12 +224,19 @@ img.onload=()=>{
 naturalW=img.naturalWidth;
 naturalH=img.naturalHeight;
 
+/* SCALE IMAGE (IMPORTANT) */
 scale=Math.min(700/naturalW,450/naturalH,1);
 
 img.style.width=naturalW*scale+"px";
 img.style.height=naturalH*scale+"px";
 
 workspace.style.display="flex";
+
+/* reset crop */
+crop.style.left="80px";
+crop.style.top="80px";
+crop.style.width="180px";
+crop.style.height="180px";
 };
 };
 
@@ -266,21 +284,21 @@ x=sl+dx;
 y=st+dy;
 }
 
-/* CORNERS */
+/* RESIZE */
 if(mode==="tl"){x=sl+dx;y=st+dy;w=sw-dx;h=sh-dy;}
 if(mode==="tr"){y=st+dy;w=sw+dx;h=sh-dy;}
 if(mode==="bl"){x=sl+dx;w=sw-dx;h=sh+dy;}
 if(mode==="br"){w=sw+dx;h=sh+dy;}
-
-/* SIDES */
 if(mode==="tm"){y=st+dy;h=sh-dy;}
 if(mode==="bm"){h=sh+dy;}
 if(mode==="ml"){x=sl+dx;w=sw-dx;}
 if(mode==="mr"){w=sw+dx;}
 
-/* STRICT LIMITS TO IMAGE */
-const maxW=workspace.clientWidth;
-const maxH=workspace.clientHeight;
+/* 🔥 LIMIT STRICTEMENT À L’IMAGE (PAS WORKSPACE) */
+const imgRect=img.getBoundingClientRect();
+
+const maxW=imgRect.width;
+const maxH=imgRect.height;
 
 w=Math.max(40,Math.min(w,maxW-x));
 h=Math.max(40,Math.min(h,maxH-y));
@@ -321,6 +339,7 @@ ctx.drawImage(temp,x,y,w,h,0,0,w,h);
 const url=canvas.toDataURL("image/png");
 
 const box=document.createElement("div");
+
 box.innerHTML=`
 <img src="${url}">
 <a class="download" href="${url}" download="toolforge-crop.png">Télécharger</a>

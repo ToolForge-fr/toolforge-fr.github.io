@@ -15,7 +15,175 @@
 
 <style>
 
-/* GARDE EXACTEMENT LE CSS AUDIO ICI */
+:root{
+  --bg:#0B1220;
+  --card:#151F32;
+  --border:#24324D;
+  --text:#FFFFFF;
+  --muted:#A8B3CF;
+  --accent:#4F8CFF;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+.container{
+  width:min(1200px,92%);
+  margin:auto;
+}
+
+header{
+  border-bottom:1px solid var(--border);
+}
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 0;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:800;
+}
+
+.menu{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.menu a{
+  color:var(--muted);
+}
+
+.menu a:hover{
+  color:white;
+}
+
+.hero{
+  padding:80px 0;
+  text-align:center;
+}
+
+.hero h1{
+  font-size:clamp(40px,6vw,64px);
+  margin-bottom:20px;
+}
+
+.hero p{
+  max-width:750px;
+  margin:auto;
+  color:var(--muted);
+  font-size:20px;
+  line-height:1.7;
+}
+
+.section{
+  padding:70px 0;
+}
+
+.section-title{
+  text-align:center;
+  margin-bottom:50px;
+}
+
+.section-title h2{
+  font-size:38px;
+  margin-bottom:10px;
+}
+
+.section-title p{
+  color:var(--muted);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:24px;
+  transition:.2s;
+}
+
+.card:hover{
+  transform:translateY(-4px);
+  border-color:var(--accent);
+}
+
+.card h3{
+  margin-bottom:12px;
+}
+
+.card p{
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.features{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+}
+
+.feature{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:24px;
+}
+
+.feature h3{
+  margin-bottom:10px;
+}
+
+.feature p{
+  color:var(--muted);
+}
+
+.faq-item{
+  background:var(--card);
+  border:1px solid(var(--border));
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:15px;
+}
+
+.faq-item p{
+  margin-top:10px;
+  color:var(--muted);
+}
+
+footer{
+  border-top:1px solid(var(--border));
+  margin-top:60px;
+}
+
+.footer{
+  text-align:center;
+  padding:40px 0;
+  color:var(--muted);
+}
 
 </style>
 </head>
@@ -70,31 +238,31 @@ gratuitement directement dans votre navigateur.
 
 <a href="image-compressor.html" class="card">
 <h3>Compression Image</h3>
-<p>Réduisez la taille de vos images sans effort.</p>
+<p>Réduisez la taille de vos images rapidement.</p>
 </a>
 
 
 <a href="image-resize.html" class="card">
 <h3>Redimensionnement Image</h3>
-<p>Modifiez la largeur et la hauteur de vos images.</p>
+<p>Changez les dimensions de vos images.</p>
 </a>
 
 
 <a href="image-converter.html" class="card">
 <h3>Convertisseur Image</h3>
-<p>Convertissez vos images entre différents formats.</p>
+<p>Convertissez vos images entre plusieurs formats.</p>
 </a>
 
 
 <a href="image-crop.html" class="card">
 <h3>Recadrage Image</h3>
-<p>Recadrez vos images avec un cadre interactif.</p>
+<p>Recadrez vos images avec précision.</p>
 </a>
 
 
 <a href="image-rotate-flip.html" class="card">
 <h3>Rotation Image</h3>
-<p>Tournez ou retournez vos images facilement.</p>
+<p>Tournez ou retournez vos images.</p>
 </a>
 
 
@@ -105,20 +273,20 @@ gratuitement directement dans votre navigateur.
 
 
 <a href="image-background-remove.html" class="card">
-<h3>Suppression de Fond</h3>
-<p>Retirez l'arrière-plan de vos images.</p>
+<h3>Suppression de fond</h3>
+<p>Supprimez l'arrière-plan d'une image.</p>
 </a>
 
 
 <a href="image-batch-compress.html" class="card">
-<h3>Compression Multiple</h3>
-<p>Compressez plusieurs images en une fois.</p>
+<h3>Compression multiple</h3>
+<p>Traitez plusieurs images en même temps.</p>
 </a>
 
 
 <a href="image-thumbnail-generator.html" class="card">
-<h3>Générateur de Miniatures</h3>
-<p>Créez rapidement des miniatures adaptées.</p>
+<h3>Créateur de miniatures</h3>
+<p>Générez des miniatures automatiquement.</p>
 </a>
 
 
@@ -129,40 +297,32 @@ gratuitement directement dans votre navigateur.
 
 <section class="section container">
 
-
 <div class="section-title">
-
 <h2>Pourquoi utiliser ToolForge ?</h2>
-
 </div>
 
 
 <div class="features">
-
 
 <div class="feature">
 <h3>100% Gratuit</h3>
 <p>Tous les outils image sont accessibles gratuitement.</p>
 </div>
 
-
 <div class="feature">
 <h3>Sans inscription</h3>
-<p>Aucun compte requis pour utiliser les outils.</p>
+<p>Aucun compte requis pour commencer.</p>
 </div>
-
 
 <div class="feature">
 <h3>Rapide</h3>
 <p>Traitement directement depuis votre navigateur.</p>
 </div>
 
-
 <div class="feature">
 <h3>Simple</h3>
 <p>Interface claire et facile à utiliser.</p>
 </div>
-
 
 </div>
 
@@ -170,7 +330,6 @@ gratuitement directement dans votre navigateur.
 
 
 <section class="section container">
-
 
 <div class="section-title">
 <h2>Questions fréquentes</h2>
@@ -178,35 +337,389 @@ gratuitement directement dans votre navigateur.
 
 
 <div class="faq-item">
-
 <h3>Les outils image sont-ils gratuits ?</h3>
-
-<p>
-Oui, tous les outils image de ToolForge sont gratuits.
-</p>
-
+<p>Oui, tous les outils image de ToolForge sont gratuits.</p>
 </div>
 
 
 <div class="faq-item">
-
-<h3>Quels formats sont supportés ?</h3>
-
-<p>
-JPG, PNG, WEBP et autres formats courants.
-</p>
-
+<h3>Quels formats image sont supportés ?</h3>
+<p>JPG, PNG, WEBP et d'autres formats courants.</p>
 </div>
 
 
 <div class="faq-item">
-
 <h3>Mes images sont-elles envoyées sur un serveur ?</h3>
+<p>Lorsque cela est possible, les traitements sont effectués localement dans votre navigateur.</p>
+</div>
+
+
+</section>
+
+
+<footer>
+
+<div class="container footer">
+© ToolForge
+</div>
+
+</footer>
+
+
+</body>
+</html><!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Outils Image Gratuits - ToolForge</title>
+
+<meta name="description" content="Compressez, redimensionnez, convertissez et modifiez vos images gratuitement avec les outils image de ToolForge.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+  --bg:#0B1220;
+  --card:#151F32;
+  --border:#24324D;
+  --text:#FFFFFF;
+  --muted:#A8B3CF;
+  --accent:#4F8CFF;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+.container{
+  width:min(1200px,92%);
+  margin:auto;
+}
+
+header{
+  border-bottom:1px solid var(--border);
+}
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 0;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:800;
+}
+
+.menu{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.menu a{
+  color:var(--muted);
+}
+
+.menu a:hover{
+  color:white;
+}
+
+.hero{
+  padding:80px 0;
+  text-align:center;
+}
+
+.hero h1{
+  font-size:clamp(40px,6vw,64px);
+  margin-bottom:20px;
+}
+
+.hero p{
+  max-width:750px;
+  margin:auto;
+  color:var(--muted);
+  font-size:20px;
+  line-height:1.7;
+}
+
+.section{
+  padding:70px 0;
+}
+
+.section-title{
+  text-align:center;
+  margin-bottom:50px;
+}
+
+.section-title h2{
+  font-size:38px;
+  margin-bottom:10px;
+}
+
+.section-title p{
+  color:var(--muted);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:24px;
+  transition:.2s;
+}
+
+.card:hover{
+  transform:translateY(-4px);
+  border-color:var(--accent);
+}
+
+.card h3{
+  margin-bottom:12px;
+}
+
+.card p{
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.features{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+}
+
+.feature{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:24px;
+}
+
+.feature h3{
+  margin-bottom:10px;
+}
+
+.feature p{
+  color:var(--muted);
+}
+
+.faq-item{
+  background:var(--card);
+  border:1px solid(var(--border));
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:15px;
+}
+
+.faq-item p{
+  margin-top:10px;
+  color:var(--muted);
+}
+
+footer{
+  border-top:1px solid(var(--border));
+  margin-top:60px;
+}
+
+.footer{
+  text-align:center;
+  padding:40px 0;
+  color:var(--muted);
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="container nav">
+
+<div class="logo">
+<a href="../">ToolForge</a>
+</div>
+
+<nav class="menu">
+<a href="../audio/">Audio</a>
+<a href="../video/">Vidéo</a>
+<a href="../image/">Image</a>
+<a href="../pdf/">PDF</a>
+<a href="../qr/">QR</a>
+<a href="../text/">Texte</a>
+</nav>
+
+</div>
+</header>
+
+
+<section class="hero container">
+
+<h1>Outils Image Gratuits</h1>
 
 <p>
-Lorsque cela est possible, les traitements sont effectués localement dans votre navigateur.
+Compressez, redimensionnez, convertissez et modifiez vos images
+gratuitement directement dans votre navigateur.
 </p>
 
+</section>
+
+
+<section class="section container">
+
+<div class="section-title">
+
+<h2>Tous les outils image</h2>
+
+<p>Choisissez l'outil adapté à votre besoin.</p>
+
+</div>
+
+
+<div class="grid">
+
+
+<a href="image-compressor.html" class="card">
+<h3>Compression Image</h3>
+<p>Réduisez la taille de vos images rapidement.</p>
+</a>
+
+
+<a href="image-resize.html" class="card">
+<h3>Redimensionnement Image</h3>
+<p>Changez les dimensions de vos images.</p>
+</a>
+
+
+<a href="image-converter.html" class="card">
+<h3>Convertisseur Image</h3>
+<p>Convertissez vos images entre plusieurs formats.</p>
+</a>
+
+
+<a href="image-crop.html" class="card">
+<h3>Recadrage Image</h3>
+<p>Recadrez vos images avec précision.</p>
+</a>
+
+
+<a href="image-rotate-flip.html" class="card">
+<h3>Rotation Image</h3>
+<p>Tournez ou retournez vos images.</p>
+</a>
+
+
+<a href="image-upscale.html" class="card">
+<h3>Amélioration Image</h3>
+<p>Augmentez la résolution de vos images.</p>
+</a>
+
+
+<a href="image-background-remove.html" class="card">
+<h3>Suppression de fond</h3>
+<p>Supprimez l'arrière-plan d'une image.</p>
+</a>
+
+
+<a href="image-batch-compress.html" class="card">
+<h3>Compression multiple</h3>
+<p>Traitez plusieurs images en même temps.</p>
+</a>
+
+
+<a href="image-thumbnail-generator.html" class="card">
+<h3>Créateur de miniatures</h3>
+<p>Générez des miniatures automatiquement.</p>
+</a>
+
+
+</div>
+
+</section>
+
+
+<section class="section container">
+
+<div class="section-title">
+<h2>Pourquoi utiliser ToolForge ?</h2>
+</div>
+
+
+<div class="features">
+
+<div class="feature">
+<h3>100% Gratuit</h3>
+<p>Tous les outils image sont accessibles gratuitement.</p>
+</div>
+
+<div class="feature">
+<h3>Sans inscription</h3>
+<p>Aucun compte requis pour commencer.</p>
+</div>
+
+<div class="feature">
+<h3>Rapide</h3>
+<p>Traitement directement depuis votre navigateur.</p>
+</div>
+
+<div class="feature">
+<h3>Simple</h3>
+<p>Interface claire et facile à utiliser.</p>
+</div>
+
+</div>
+
+</section>
+
+
+<section class="section container">
+
+<div class="section-title">
+<h2>Questions fréquentes</h2>
+</div>
+
+
+<div class="faq-item">
+<h3>Les outils image sont-ils gratuits ?</h3>
+<p>Oui, tous les outils image de ToolForge sont gratuits.</p>
+</div>
+
+
+<div class="faq-item">
+<h3>Quels formats image sont supportés ?</h3>
+<p>JPG, PNG, WEBP et d'autres formats courants.</p>
+</div>
+
+
+<div class="faq-item">
+<h3>Mes images sont-elles envoyées sur un serveur ?</h3>
+<p>Lorsque cela est possible, les traitements sont effectués localement dans votre navigateur.</p>
 </div>
 
 

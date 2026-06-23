@@ -89,13 +89,30 @@ display:block;
 
 .crop{
 position:absolute;
-width:180px;
-height:180px;
 border:2px solid var(--accent);
-top:60px;
-left:60px;
+left:80px;
+top:80px;
+width:200px;
+height:200px;
 cursor:move;
 }
+
+.handle{
+position:absolute;
+width:10px;
+height:10px;
+background:var(--accent);
+}
+
+.tl{top:-5px;left:-5px;cursor:nwse-resize}
+.tr{top:-5px;right:-5px;cursor:nesw-resize}
+.bl{bottom:-5px;left:-5px;cursor:nesw-resize}
+.br{bottom:-5px;right:-5px;cursor:nwse-resize}
+
+.tm{top:-5px;left:50%;transform:translateX(-50%);cursor:ns-resize}
+.bm{bottom:-5px;left:50%;transform:translateX(-50%);cursor:ns-resize}
+.ml{left:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+.mr{right:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}
 
 .preview{
 margin-top:20px;
@@ -105,9 +122,6 @@ gap:10px;
 }
 
 .preview img{
-width:120px;
-height:120px;
-object-fit:cover;
 border-radius:10px;
 border:1px solid var(--border);
 }
@@ -124,7 +138,7 @@ border:1px solid var(--border);
 
 <h1>Recadrage d’image</h1>
 
-<p>Sélectionne une zone et génère des versions recadrées.</p>
+<p>Style mobile avec poignées de redimensionnement.</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -132,7 +146,19 @@ border:1px solid var(--border);
 
 <img id="img">
 
-<div class="crop" id="crop"></div>
+<div class="crop" id="crop">
+
+<div class="handle tl"></div>
+<div class="handle tr"></div>
+<div class="handle bl"></div>
+<div class="handle br"></div>
+
+<div class="handle tm"></div>
+<div class="handle bm"></div>
+<div class="handle ml"></div>
+<div class="handle mr"></div>
+
+</div>
 
 </div>
 
@@ -157,7 +183,7 @@ let scale=1;
 let naturalW=0;
 let naturalH=0;
 
-// LOAD IMAGE
+// LOAD
 file.onchange=e=>{
 const f=e.target.files[0];
 if(!f)return;
@@ -170,11 +196,7 @@ img.onload=()=>{
 naturalW=img.naturalWidth;
 naturalH=img.naturalHeight;
 
-// FIT workspace
-const maxW=700;
-const maxH=450;
-
-scale=Math.min(maxW/naturalW,maxH/naturalH,1);
+scale=Math.min(700/naturalW,450/naturalH,1);
 
 img.style.width=naturalW*scale+"px";
 img.style.height=naturalH*scale+"px";
@@ -183,34 +205,89 @@ workspace.style.display="flex";
 };
 };
 
-// MOVE crop (strict bounds)
-let dragging=false;
-let sx,sy,sl,st;
+// MOVE + RESIZE STATE
+let mode=null;
+let sx,sy,sl,st,sw,sh;
 
-crop.onmousedown=e=>{
-dragging=true;
+function start(type,e){
+mode=type;
 sx=e.clientX;
 sy=e.clientY;
 sl=crop.offsetLeft;
 st=crop.offsetTop;
+sw=crop.offsetWidth;
+sh=crop.offsetHeight;
+}
+
+crop.onmousedown=e=>{
+start("move",e);
 };
 
-window.onmouseup=()=>dragging=false;
+document.querySelectorAll(".handle").forEach(h=>{
+h.onmousedown=e=>{
+e.stopPropagation();
+start(h.classList[1],e);
+};
+});
+
+window.onmouseup=()=>mode=null;
 
 window.onmousemove=e=>{
-if(!dragging)return;
+if(!mode)return;
 
-let x=sl+(e.clientX-sx);
-let y=st+(e.clientY-sy);
+let dx=e.clientX-sx;
+let dy=e.clientY-sy;
 
-const maxX=workspace.clientWidth-crop.offsetWidth;
-const maxY=workspace.clientHeight-crop.offsetHeight;
+let x=sl;
+let y=st;
+let w=sw;
+let h=sh;
 
-crop.style.left=Math.max(0,Math.min(maxX,x))+"px";
-crop.style.top=Math.max(0,Math.min(maxY,y))+"px";
+if(mode==="move"){
+x=sl+dx;
+y=st+dy;
+}
+
+if(mode==="tl"){
+x=sl+dx;
+y=st+dy;
+w=sw-dx;
+h=sh-dy;
+}
+
+if(mode==="tr"){
+y=st+dy;
+w=sw+dx;
+h=sh-dy;
+}
+
+if(mode==="bl"){
+x=sl+dx;
+w=sw-dx;
+h=sh+dy;
+}
+
+if(mode==="br"){
+w=sw+dx;
+h=sh+dy;
+}
+
+// clamp
+const maxX=workspace.clientWidth;
+const maxY=workspace.clientHeight;
+
+x=Math.max(0,Math.min(x,maxX-w));
+y=Math.max(0,Math.min(y,maxY-h));
+w=Math.max(30,w);
+h=Math.max(30,h);
+
+crop.style.left=x+"px";
+crop.style.top=y+"px";
+crop.style.width=w+"px";
+crop.style.height=h+"px";
 };
 
-// CROP (always from ORIGINAL)
+// EXPORT
 document.getElementById("cropBtn").onclick=()=>{
 
 const canvas=document.createElement("canvas");
@@ -236,9 +313,12 @@ ctx.drawImage(temp,x,y,w,h,0,0,w,h);
 
 const url=canvas.toDataURL("image/png");
 
-// ADD preview ONLY (never replace main image)
+// preview 100% size crop
 const im=document.createElement("img");
 im.src=url;
+im.style.width=w+"px";
+im.style.height=h+"px";
+
 preview.appendChild(im);
 
 };

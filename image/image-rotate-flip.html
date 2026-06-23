@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Rotation Image - ToolForge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+--bg:#0B1220;
+--card:#151F32;
+--border:#24324D;
+--text:#fff;
+--muted:#A8B3CF;
+--accent:#4F8CFF;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+user-select:none;
+}
+
+body{
+font-family:Inter,sans-serif;
+background:var(--bg);
+color:var(--text);
+}
+
+.container{
+width:min(900px,92%);
+margin:auto;
+padding:40px 0;
+}
+
+.card{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:18px;
+padding:25px;
+}
+
+h1{margin-bottom:10px}
+
+p{
+color:var(--muted);
+margin-bottom:20px;
+}
+
+input,button{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid var(--border);
+margin-bottom:10px;
+background:#0B1220;
+color:white;
+}
+
+button{
+background:var(--accent);
+cursor:pointer;
+font-weight:600;
+}
+
+/* preview area */
+.stage{
+margin-top:20px;
+display:none;
+justify-content:center;
+align-items:center;
+height:500px;
+background:#0B1220;
+border-radius:15px;
+position:relative;
+overflow:hidden;
+}
+
+/* image */
+#img{
+max-width:100%;
+max-height:100%;
+transform-origin:center center;
+}
+
+/* control wheel */
+.wheel{
+position:absolute;
+width:160px;
+height:160px;
+border-radius:50%;
+border:2px solid var(--accent);
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+background:rgba(11,18,32,0.4);
+}
+
+.wheel::after{
+content:"";
+width:10px;
+height:10px;
+background:var(--accent);
+border-radius:50%;
+position:absolute;
+top:10px;
+}
+
+/* angle display */
+.angle{
+margin-top:15px;
+text-align:center;
+color:var(--muted);
+font-size:16px;
+}
+
+/* mirror */
+.options{
+margin-top:10px;
+display:flex;
+align-items:center;
+gap:10px;
+color:var(--muted);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h1>Rotation d’image</h1>
+
+<p>Faites pivoter et refléter vos images directement dans le navigateur.</p>
+
+<input type="file" id="file" accept="image/*">
+
+<div class="stage" id="stage">
+
+<img id="img">
+
+<div class="wheel" id="wheel"></div>
+
+</div>
+
+<div class="angle" id="angle">0°</div>
+
+<div class="options">
+<input type="checkbox" id="mirror">
+<label for="mirror">Rotation miroir (flip horizontal)</label>
+</div>
+
+<button id="downloadBtn">Télécharger</button>
+
+</div>
+
+</div>
+
+<script>
+
+const file=document.getElementById("file");
+const img=document.getElementById("img");
+const stage=document.getElementById("stage");
+const wheel=document.getElementById("wheel");
+const angleText=document.getElementById("angle");
+const mirror=document.getElementById("mirror");
+
+let angle=0;
+let dragging=false;
+
+file.onchange=e=>{
+const f=e.target.files[0];
+if(!f)return;
+
+img.src=URL.createObjectURL(f);
+stage.style.display="flex";
+};
+
+wheel.addEventListener("mousedown",()=>dragging=true);
+window.addEventListener("mouseup",()=>dragging=false);
+
+window.addEventListener("mousemove",(e)=>{
+
+if(!dragging)return;
+
+const rect=stage.getBoundingClientRect();
+const cx=rect.left+rect.width/2;
+const cy=rect.top+rect.height/2;
+
+const dx=e.clientX-cx;
+const dy=e.clientY-cy;
+
+angle=Math.atan2(dy,dx)*(180/Math.PI)+90;
+
+applyTransform();
+
+});
+
+function applyTransform(){
+
+let transform=`rotate(${angle}deg)`;
+
+if(mirror.checked){
+transform+=` scaleX(-1)`;
+}
+
+img.style.transform=transform;
+angleText.textContent=`${Math.round(angle)}°`;
+}
+
+/* mirror update */
+mirror.addEventListener("change",applyTransform);
+
+document.getElementById("downloadBtn").onclick=()=>{
+
+const canvas=document.createElement("canvas");
+const ctx=canvas.getContext("2d");
+
+const temp=new Image();
+temp.src=img.src;
+
+temp.onload=()=>{
+
+const w=temp.width;
+const h=temp.height;
+
+canvas.width=w;
+canvas.height=h;
+
+ctx.translate(w/2,h/2);
+ctx.rotate(angle*Math.PI/180);
+
+if(mirror.checked){
+ctx.scale(-1,1);
+}
+
+ctx.drawImage(temp,-w/2,-h/2);
+
+const url=canvas.toDataURL("image/png");
+
+const a=document.createElement("a");
+a.href=url;
+a.download="toolforge-rotate.png";
+a.click();
+
+};
+
+};
+
+</script>
+
+</body>
+
+</html>

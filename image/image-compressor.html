@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Compresseur d'Image - ToolForge</title>
+
 <meta name="description" content="Compressez vos images JPG, PNG et WEBP gratuitement en ligne.">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+
 <style>
+
 :root{
   --bg:#0B1220;
   --card:#151F32;
@@ -19,159 +24,409 @@
   --accent:#4F8CFF;
 }
 
-*{margin:0;padding:0;box-sizing:border-box}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
 
 body{
-  font-family:Inter,sans-serif;
-  background:var(--bg);
-  color:var(--text);
+font-family:Inter,sans-serif;
+background:var(--bg);
+color:var(--text);
 }
+
 
 .container{
-  width:min(900px,92%);
-  margin:auto;
-  padding:40px 0;
+width:min(900px,92%);
+margin:auto;
+padding:40px 0;
 }
+
 
 .card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:25px;
+background:var(--card);
+border:1px solid(var(--border));
+border-radius:18px;
+padding:25px;
 }
 
-h1{margin-bottom:10px}
-p{color:var(--muted);margin-bottom:20px;line-height:1.6}
 
-input, select, button{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  margin-bottom:10px;
-  background:#0B1220;
-  color:white;
+h1{
+margin-bottom:10px;
 }
+
+
+p{
+color:var(--muted);
+margin-bottom:20px;
+line-height:1.6;
+}
+
+
+input,button{
+
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid(var(--border));
+margin-bottom:10px;
+background:#0B1220;
+color:white;
+
+}
+
 
 button{
-  background:var(--accent);
-  cursor:pointer;
-  font-weight:600;
+
+background:var(--accent);
+cursor:pointer;
+font-weight:600;
+
 }
 
-img{
-  width:100%;
-  margin-top:10px;
-  border-radius:10px;
+
+
+
+.compare{
+
+position:relative;
+width:100%;
+height:500px;
+overflow:hidden;
+border-radius:10px;
+margin-top:20px;
+display:none;
+
 }
+
+
+
+.compare img{
+
+position:absolute;
+width:100%;
+height:100%;
+object-fit:contain;
+}
+
+
+.after{
+
+clip-path:inset(0 50% 0 0);
+
+}
+
+
+
+.slider{
+
+position:absolute;
+top:0;
+left:50%;
+
+height:100%;
+width:3px;
+
+background:white;
+
+cursor:ew-resize;
+
+}
+
+
+.slider::before{
+
+content:"↔";
+
+position:absolute;
+
+top:50%;
+left:50%;
+
+transform:translate(-50%,-50%);
+
+background:var(--accent);
+
+width:45px;
+height:45px;
+
+border-radius:50%;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:22px;
+
+}
+
+
+
+.download{
+
+display:block;
+text-align:center;
+padding:12px;
+margin-top:10px;
+background:var(--accent);
+color:white;
+text-decoration:none;
+border-radius:10px;
+display:none;
+
+}
+
 
 .status{
-  margin-top:10px;
-  color:var(--muted);
+
+margin-top:10px;
+color:var(--muted);
+
 }
 
-a.download{
-  display:block;
-  text-align:center;
-  padding:12px;
-  margin-top:10px;
-  background:var(--accent);
-  color:white;
-  text-decoration:none;
-  border-radius:10px;
-  display:none;
-}
 </style>
+
+
 </head>
+
 
 <body>
 
+
 <div class="container">
+
 
 <div class="card">
 
+
 <h1>Compresseur d’Image</h1>
 
-<p>Réduis la taille de tes images sans installation.</p>
+
+<p>
+Réduis la taille de tes images sans installation.
+</p>
+
+
 
 <input type="file" id="file" accept="image/*">
 
-<label>Qualité (0.1 → 1)</label>
-<input type="number" id="quality" value="0.7" min="0.1" max="1" step="0.1">
 
-<button id="compress">Compresser</button>
 
-<img id="preview">
+<label>Qualité</label>
 
-<a id="download" class="download">Télécharger</a>
+<input 
+type="number"
+id="quality"
+value="0.7"
+min="0.1"
+max="1"
+step="0.1">
+
+
+
+<button id="compress">
+
+Compresser
+
+</button>
+
+
+
+<div class="compare" id="compare">
+
+
+<img id="before">
+
+
+<img id="after" class="after">
+
+
+<div class="slider" id="slider"></div>
+
+
+</div>
+
+
+
+<a id="download" class="download">
+
+Télécharger
+
+</a>
+
+
 
 <div class="status" id="status"></div>
 
-</div>
 
 </div>
+
+
+</div>
+
+
+
+
 
 <script>
 
-const fileInput = document.getElementById('file');
-const qualityInput = document.getElementById('quality');
-const compressBtn = document.getElementById('compress');
-const preview = document.getElementById('preview');
-const download = document.getElementById('download');
-const status = document.getElementById('status');
+
+const fileInput=document.getElementById("file");
+const qualityInput=document.getElementById("quality");
+const button=document.getElementById("compress");
+
+
+const before=document.getElementById("before");
+const after=document.getElementById("after");
+
+const compare=document.getElementById("compare");
+const slider=document.getElementById("slider");
+
+const download=document.getElementById("download");
+const status=document.getElementById("status");
+
 
 let imageFile;
 
-fileInput.addEventListener('change', (e) => {
 
-imageFile = e.target.files[0];
-if(!imageFile) return;
 
-preview.src = URL.createObjectURL(imageFile);
+fileInput.onchange=e=>{
 
-status.textContent = "Image chargée";
 
-});
+imageFile=e.target.files[0];
 
-compressBtn.addEventListener('click', () => {
 
-if(!imageFile) return;
+if(!imageFile)return;
 
-const quality = parseFloat(qualityInput.value) || 0.7;
 
-const img = new Image();
+before.src=URL.createObjectURL(imageFile);
 
-img.onload = () => {
+status.textContent="Image chargée";
 
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d');
-
-canvas.width = img.width;
-canvas.height = img.height;
-
-ctx.drawImage(img, 0, 0);
-
-canvas.toBlob((blob) => {
-
-const url = URL.createObjectURL(blob);
-
-preview.src = url;
-
-download.href = url;
-download.download = "toolforge-compressed.jpg";
-download.style.display = "block";
-
-status.textContent = "Compression terminée";
-
-}, 'image/jpeg', quality);
 
 };
 
-img.src = URL.createObjectURL(imageFile);
 
-});
+
+
+
+button.onclick=()=>{
+
+
+if(!imageFile)return;
+
+
+
+const img=new Image();
+
+
+img.onload=()=>{
+
+
+const canvas=document.createElement("canvas");
+
+const ctx=canvas.getContext("2d");
+
+
+canvas.width=img.width;
+canvas.height=img.height;
+
+
+ctx.drawImage(img,0,0);
+
+
+
+canvas.toBlob(blob=>{
+
+
+const url=URL.createObjectURL(blob);
+
+
+
+after.src=url;
+
+
+
+download.href=url;
+
+download.download="toolforge-compressed.jpg";
+
+
+download.style.display="block";
+
+
+compare.style.display="block";
+
+
+status.textContent="Compression terminée";
+
+
+
+}, "image/jpeg", Number(qualityInput.value));
+
+
+};
+
+
+img.src=before.src;
+
+
+};
+
+
+
+
+
+let dragging=false;
+
+
+
+slider.onmousedown=()=>dragging=true;
+
+
+window.onmouseup=()=>dragging=false;
+
+
+window.onmousemove=e=>{
+
+
+if(!dragging)return;
+
+
+
+const rect=compare.getBoundingClientRect();
+
+
+
+let x=e.clientX-rect.left;
+
+
+if(x<0)x=0;
+
+if(x>rect.width)x=rect.width;
+
+
+
+let percent=x/rect.width*100;
+
+
+
+slider.style.left=percent+"%";
+
+
+after.style.clipPath=
+`inset(0 ${100-percent}% 0 0)`;
+
+};
+
 
 </script>
 
+
+
 </body>
+
 </html>

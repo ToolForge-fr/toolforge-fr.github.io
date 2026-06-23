@@ -78,52 +78,39 @@ border-radius:15px;
 display:none;
 position:relative;
 overflow:hidden;
-align-items:center;
 justify-content:center;
+align-items:center;
 }
 
-.img{
+#img{
 max-width:100%;
 max-height:100%;
 display:block;
-position:relative;
 }
 
 .crop{
 position:absolute;
-border:2px solid var(--accent);
 width:180px;
 height:180px;
-top:50px;
-left:50px;
+border:2px solid var(--accent);
+top:60px;
+left:60px;
 cursor:move;
 }
 
-.handle{
-position:absolute;
-width:10px;
-height:10px;
-background:var(--accent);
+.preview{
+margin-top:20px;
+display:flex;
+flex-wrap:wrap;
+gap:10px;
 }
 
-.tl{top:-5px;left:-5px;cursor:nwse-resize}
-.tr{top:-5px;right:-5px;cursor:nesw-resize}
-.bl{bottom:-5px;left:-5px;cursor:nesw-resize}
-.br{bottom:-5px;right:-5px;cursor:nwse-resize}
-
-.download{
-display:none;
-text-align:center;
-padding:12px;
-background:var(--accent);
-color:white;
+.preview img{
+width:120px;
+height:120px;
+object-fit:cover;
 border-radius:10px;
-text-decoration:none;
-}
-
-.status{
-color:var(--muted);
-margin-top:10px;
+border:1px solid var(--border);
 }
 
 </style>
@@ -136,32 +123,23 @@ margin-top:10px;
 
 <div class="card">
 
-<h1>Recadrage d’Image</h1>
+<h1>Recadrage d’image</h1>
 
-<p>Sélectionnez une zone puis recadrez.</p>
+<p>Recadrez et générez plusieurs versions sans écraser l’original.</p>
 
 <input type="file" id="file" accept="image/*">
 
 <div class="workspace" id="workspace">
 
-<img id="img" class="img">
+<img id="img">
 
-<div class="crop" id="crop">
-
-<div class="handle tl"></div>
-<div class="handle tr"></div>
-<div class="handle bl"></div>
-<div class="handle br"></div>
-
-</div>
+<div class="crop" id="crop"></div>
 
 </div>
 
 <button id="cropBtn">Recadrer</button>
 
-<a id="download" class="download">Télécharger</a>
-
-<div class="status" id="status"></div>
+<div class="preview" id="preview"></div>
 
 </div>
 
@@ -173,10 +151,9 @@ const file=document.getElementById("file");
 const img=document.getElementById("img");
 const workspace=document.getElementById("workspace");
 const crop=document.getElementById("crop");
-const cropBtn=document.getElementById("cropBtn");
-const download=document.getElementById("download");
-const status=document.getElementById("status");
+const preview=document.getElementById("preview");
 
+let originalSrc="";
 let scale=1;
 let imgW=0;
 let imgH=0;
@@ -186,7 +163,8 @@ file.onchange=e=>{
 const f=e.target.files[0];
 if(!f)return;
 
-img.src=URL.createObjectURL(f);
+originalSrc=URL.createObjectURL(f);
+img.src=originalSrc;
 
 img.onload=()=>{
 
@@ -202,12 +180,10 @@ img.style.width=imgW*scale+"px";
 img.style.height=imgH*scale+"px";
 
 workspace.style.display="flex";
-
-status.textContent="Image chargée";
 };
 };
 
-// MOVE crop ONLY inside workspace
+// MOVE crop (clamp correct)
 let dragging=false;
 let startX,startY,startLeft,startTop;
 
@@ -227,19 +203,15 @@ if(!dragging)return;
 let x=startLeft+(e.clientX-startX);
 let y=startTop+(e.clientY-startY);
 
-// LIMIT BOUNDS
 const maxX=workspace.clientWidth-crop.offsetWidth;
 const maxY=workspace.clientHeight-crop.offsetHeight;
 
-x=Math.max(0,Math.min(maxX,x));
-y=Math.max(0,Math.min(maxY,y));
-
-crop.style.left=x+"px";
-crop.style.top=y+"px";
+crop.style.left=Math.max(0,Math.min(maxX,x))+"px";
+crop.style.top=Math.max(0,Math.min(maxY,y))+"px";
 };
 
-// CROP ACTION (preview + export ready)
-cropBtn.onclick=()=>{
+// CROP WITHOUT REPLACING IMAGE
+document.getElementById("cropBtn").onclick=()=>{
 
 const canvas=document.createElement("canvas");
 const ctx=canvas.getContext("2d");
@@ -247,27 +219,32 @@ const ctx=canvas.getContext("2d");
 const imgRect=img.getBoundingClientRect();
 const cropRect=crop.getBoundingClientRect();
 
+// conversion coords
 const x=(cropRect.left-imgRect.left)/scale;
 const y=(cropRect.top-imgRect.top)/scale;
 const w=cropRect.width/scale;
 const h=cropRect.height/scale;
 
+// draw from ORIGINAL IMAGE ONLY
+const tempImg=new Image();
+tempImg.src=originalSrc;
+
+tempImg.onload=()=>{
+
 canvas.width=w;
 canvas.height=h;
 
-ctx.drawImage(img,x,y,w,h,0,0,w,h);
+ctx.drawImage(tempImg,x,y,w,h,0,0,w,h);
 
 const url=canvas.toDataURL("image/png");
 
-// show preview directly in image area
-img.src=url;
+// add preview (NOT replace main image)
+const im=document.createElement("img");
+im.src=url;
+preview.appendChild(im);
 
-// show download
-download.href=url;
-download.download="toolforge-crop.png";
-download.style.display="block";
+};
 
-status.textContent="Image recadrée";
 };
 
 </script>

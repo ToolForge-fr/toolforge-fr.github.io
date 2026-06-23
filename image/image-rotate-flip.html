@@ -91,15 +91,15 @@ max-height:100%;
 transform-origin:center center;
 }
 
-/* wheel */
+/* wheel (réduite) */
 .wheel{
 position:absolute;
-width:140px;
-height:140px;
+width:70px;
+height:70px;
 border-radius:50%;
 border:2px solid var(--accent);
 background:rgba(11,18,32,0.4);
-cursor:pointer;
+cursor:grab;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -107,19 +107,19 @@ justify-content:center;
 
 .wheel::after{
 content:"";
-width:10px;
-height:10px;
+width:8px;
+height:8px;
 background:var(--accent);
 border-radius:50%;
 position:absolute;
-top:10px;
+top:6px;
 }
 
 /* controls */
 .controls{
-margin-top:15px;
 display:flex;
 gap:10px;
+margin-top:10px;
 }
 
 .controls input{
@@ -130,17 +130,13 @@ flex:2;
 flex:1;
 }
 
-/* mirror */
+/* mirror line */
 .mirror{
 display:flex;
 align-items:center;
-justify-content:space-between;
+gap:10px;
 margin-top:10px;
 color:var(--muted);
-}
-
-.mirror label{
-text-align:left;
 }
 
 .mirror input{
@@ -159,7 +155,7 @@ width:auto;
 
 <h1>Rotation d’image</h1>
 
-<p>Faites pivoter et refléter vos images.</p>
+<p>Rotation libre avec roue interactive et miroir.</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -171,7 +167,7 @@ width:auto;
 
 </div>
 
-<!-- ANGLE INPUT -->
+<!-- angle -->
 <div class="controls">
 <input type="number" id="angleInput" value="0">
 <select id="unit">
@@ -180,10 +176,10 @@ width:auto;
 </select>
 </div>
 
-<!-- MIRROR -->
+<!-- mirror (aligné gauche + texte à côté) -->
 <div class="mirror">
-<label>Image miroir</label>
 <input type="checkbox" id="mirror">
+<label for="mirror">Image miroir</label>
 </div>
 
 <button id="downloadBtn">Télécharger</button>
@@ -205,7 +201,7 @@ const mirror=document.getElementById("mirror");
 let angleDeg=0;
 let dragging=false;
 
-/* LOAD */
+/* load image */
 file.onchange=e=>{
 const f=e.target.files[0];
 if(!f)return;
@@ -214,13 +210,20 @@ img.src=URL.createObjectURL(f);
 stage.style.display="flex";
 };
 
-/* WHEEL ROTATION */
-wheel.addEventListener("mousedown",()=>dragging=true);
+/* ROTATION GLOBAL (PAS JUSTE CERCLE) */
+stage.addEventListener("mousedown",(e)=>{
+dragging=true;
+updateFromMouse(e);
+});
+
 window.addEventListener("mouseup",()=>dragging=false);
 
 window.addEventListener("mousemove",(e)=>{
-
 if(!dragging)return;
+updateFromMouse(e);
+});
+
+function updateFromMouse(e){
 
 const rect=stage.getBoundingClientRect();
 const cx=rect.left+rect.width/2;
@@ -234,9 +237,11 @@ angleDeg=Math.atan2(dy,dx)*(180/Math.PI)+90;
 angleInput.value=Math.round(angleDeg);
 applyTransform();
 
-});
+/* roue suit angle */
+wheel.style.transform=`rotate(${angleDeg}deg)`;
+}
 
-/* INPUT ANGLE */
+/* input angle */
 function updateAngle(){
 
 let v=parseFloat(angleInput.value)||0;
@@ -248,13 +253,14 @@ angleDeg=v;
 }
 
 applyTransform();
+wheel.style.transform=`rotate(${angleDeg}deg)`;
 }
 
 angleInput.addEventListener("input",updateAngle);
 unit.addEventListener("change",updateAngle);
 mirror.addEventListener("change",applyTransform);
 
-/* APPLY */
+/* apply */
 function applyTransform(){
 
 let t=`rotate(${angleDeg}deg)`;
@@ -266,7 +272,7 @@ t+=` scaleX(-1)`;
 img.style.transform=t;
 }
 
-/* DOWNLOAD */
+/* download */
 document.getElementById("downloadBtn").onclick=()=>{
 
 const canvas=document.createElement("canvas");

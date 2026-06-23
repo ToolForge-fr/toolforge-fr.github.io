@@ -53,7 +53,6 @@ color:var(--muted);
 margin-bottom:20px;
 }
 
-/* INPUTS */
 input,button{
 width:100%;
 padding:12px;
@@ -70,43 +69,49 @@ cursor:pointer;
 font-weight:600;
 }
 
-/* WORKSPACE */
+/* workspace */
 .workspace{
 margin-top:20px;
-height:500px;
-background:#0B1220;
-border-radius:15px;
 display:none;
-position:relative;
-overflow:hidden;
 justify-content:center;
 align-items:center;
+background:#0B1220;
+border-radius:15px;
+height:500px;
+overflow:hidden;
+position:relative;
 }
 
-/* IMAGE (IMPORTANT REFERENCE) */
+/* IMAGE WRAPPER (IMPORTANT FIX) */
+#imgWrap{
+position:relative;
+display:inline-block;
+}
+
+/* image */
 #img{
 display:block;
 max-width:100%;
 max-height:100%;
 }
 
-/* OVERLAY */
+/* overlay */
 .overlay{
 position:absolute;
 inset:0;
-background:rgba(0,0,0,0.4);
+background:rgba(0,0,0,0.45);
 pointer-events:none;
 }
 
-/* CROP BOX */
+/* crop */
 .crop{
 position:absolute;
 border:2px solid var(--accent);
-box-shadow:0 0 0 9999px rgba(0,0,0,0.4);
+box-shadow:0 0 0 9999px rgba(0,0,0,0.45);
 cursor:move;
 }
 
-/* HANDLES */
+/* handles */
 .handle{
 position:absolute;
 width:10px;
@@ -124,7 +129,7 @@ background:var(--accent);
 .ml{left:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}
 .mr{right:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}
 
-/* PREVIEW */
+/* preview */
 .preview{
 margin-top:20px;
 display:flex;
@@ -161,14 +166,13 @@ font-weight:600;
 
 <h1>Recadrage d’image</h1>
 
-<!-- 🔥 DESCRIPTION RESTAURÉE (IDENTIQUE INDEX IMAGE) -->
-<p>
-Recadrez vos images JPG, PNG et WEBP gratuitement en ligne.
-</p>
+<p>Recadrez vos images JPG, PNG et WEBP gratuitement en ligne.</p>
 
 <input type="file" id="file" accept="image/*">
 
 <div class="workspace" id="workspace">
+
+<div id="imgWrap">
 
 <img id="img">
 
@@ -190,6 +194,8 @@ Recadrez vos images JPG, PNG et WEBP gratuitement en ligne.
 
 </div>
 
+</div>
+
 <button id="cropBtn">Recadrer</button>
 
 <div class="preview" id="preview"></div>
@@ -203,6 +209,7 @@ Recadrez vos images JPG, PNG et WEBP gratuitement en ligne.
 const file=document.getElementById("file");
 const img=document.getElementById("img");
 const workspace=document.getElementById("workspace");
+const imgWrap=document.getElementById("imgWrap");
 const crop=document.getElementById("crop");
 const preview=document.getElementById("preview");
 
@@ -224,7 +231,6 @@ img.onload=()=>{
 naturalW=img.naturalWidth;
 naturalH=img.naturalHeight;
 
-/* SCALE IMAGE (IMPORTANT) */
 scale=Math.min(700/naturalW,450/naturalH,1);
 
 img.style.width=naturalW*scale+"px";
@@ -232,15 +238,15 @@ img.style.height=naturalH*scale+"px";
 
 workspace.style.display="flex";
 
-/* reset crop */
-crop.style.left="80px";
-crop.style.top="80px";
-crop.style.width="180px";
-crop.style.height="180px";
+/* crop = taille exacte image affichée */
+crop.style.left="0px";
+crop.style.top="0px";
+crop.style.width=img.offsetWidth+"px";
+crop.style.height=img.offsetHeight+"px";
 };
 };
 
-/* MOVE + RESIZE */
+/* MOVE / RESIZE */
 let mode=null;
 let sx,sy,sl,st,sw,sh;
 
@@ -278,13 +284,13 @@ let y=st;
 let w=sw;
 let h=sh;
 
-/* MOVE */
+/* move */
 if(mode==="move"){
 x=sl+dx;
 y=st+dy;
 }
 
-/* RESIZE */
+/* resize */
 if(mode==="tl"){x=sl+dx;y=st+dy;w=sw-dx;h=sh-dy;}
 if(mode==="tr"){y=st+dy;w=sw+dx;h=sh-dy;}
 if(mode==="bl"){x=sl+dx;w=sw-dx;h=sh+dy;}
@@ -294,11 +300,9 @@ if(mode==="bm"){h=sh+dy;}
 if(mode==="ml"){x=sl+dx;w=sw-dx;}
 if(mode==="mr"){w=sw+dx;}
 
-/* 🔥 LIMIT STRICTEMENT À L’IMAGE (PAS WORKSPACE) */
-const imgRect=img.getBoundingClientRect();
-
-const maxW=imgRect.width;
-const maxH=imgRect.height;
+/* LIMIT STRICT IMAGE AREA */
+const maxW=img.offsetWidth;
+const maxH=img.offsetHeight;
 
 w=Math.max(40,Math.min(w,maxW-x));
 h=Math.max(40,Math.min(h,maxH-y));

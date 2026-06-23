@@ -1,60 +1,107 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Redimensionneur d’image - ToolForge</title>
+<title>Redimensionneur d’Image - ToolForge</title>
+
+<meta name="description" content="Redimensionnez et recadrez vos images gratuitement en ligne.">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 
+
 <style>
 
-body{
-font-family:Inter,Arial,sans-serif;
-background:#0B1220;
-color:white;
-margin:0;
+:root{
+  --bg:#0B1220;
+  --card:#151F32;
+  --border:#24324D;
+  --text:#fff;
+  --muted:#A8B3CF;
+  --accent:#4F8CFF;
 }
 
-header{
-padding:30px;
-text-align:center;
-border-bottom:1px solid #24324D;
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
 
 .container{
-max-width:900px;
-margin:auto;
-padding:30px;
+  width:min(900px,92%);
+  margin:auto;
+  padding:40px 0;
 }
 
-.box{
-background:#151F32;
-border:1px solid #24324D;
-border-radius:18px;
-padding:25px;
+.card{
+  background:var(--card);
+  border:1px solid(var(--border));
+  border-radius:18px;
+  padding:25px;
+}
+
+h1{margin-bottom:10px}
+
+p{
+color:var(--muted);
+margin-bottom:20px;
+line-height:1.6
 }
 
 input,button{
-margin-top:15px;
+width:100%;
 padding:12px;
 border-radius:10px;
-border:none;
+border:1px solid var(--border);
+margin-bottom:10px;
+background:#0B1220;
+color:white;
 }
 
 button{
-background:#4F8CFF;
-color:white;
+background:var(--accent);
 cursor:pointer;
+font-weight:600;
 }
 
-#preview{
-max-width:100%;
-margin-top:20px;
+
+img{
+width:100%;
+margin-top:10px;
+border-radius:10px;
 }
+
+
+.download{
+display:block;
+text-align:center;
+padding:12px;
+margin-top:10px;
+background:var(--accent);
+color:white;
+text-decoration:none;
+border-radius:10px;
+display:none;
+}
+
+
+.status{
+margin-top:10px;
+color:var(--muted);
+}
+
+
+.crop-area{
+max-height:500px;
+overflow:hidden;
+}
+
 
 </style>
 
@@ -64,57 +111,60 @@ margin-top:20px;
 <body>
 
 
-<header>
-
-<h1>Redimensionneur d’image</h1>
-
-<p>
-Redimensionnez et recadrez vos images gratuitement.
-</p>
-
-</header>
-
-
-
 <div class="container">
 
 
-<div class="box">
+<div class="card">
 
 
-<input type="file" id="upload" accept="image/*">
+<h1>Redimensionneur d’Image</h1>
 
+
+<p>
+Redimensionnez et recadrez vos images sans installation.
+</p>
+
+
+
+<input type="file" id="file" accept="image/*">
+
+
+
+<div class="crop-area">
 
 <img id="preview">
 
+</div>
 
 
-<br>
 
 
-<label>
-Largeur :
-<input type="number" id="width">
-</label>
+<label>Largeur</label>
+
+<input type="number" id="width" placeholder="Largeur">
 
 
-<label>
-Hauteur :
-<input type="number" id="height">
-</label>
+<label>Hauteur</label>
+
+<input type="number" id="height" placeholder="Hauteur">
 
 
-<br>
-
-
-<button onclick="downloadImage()">
-Télécharger l’image
+<button id="resize">
+Redimensionner
 </button>
 
 
 
-</div>
+<a id="download" class="download">
+Télécharger
+</a>
 
+
+
+<div class="status" id="status"></div>
+
+
+</div>
 
 </div>
 
@@ -126,14 +176,23 @@ Télécharger l’image
 <script>
 
 
+const fileInput=document.getElementById("file");
+const preview=document.getElementById("preview");
+const resizeBtn=document.getElementById("resize");
+
+const download=document.getElementById("download");
+const status=document.getElementById("status");
+
+
+const widthInput=document.getElementById("width");
+const heightInput=document.getElementById("height");
+
+
 let cropper;
 
 
-const upload=document.getElementById("upload");
-const image=document.getElementById("preview");
 
-
-upload.onchange=function(e){
+fileInput.addEventListener("change",e=>{
 
 
 const file=e.target.files[0];
@@ -142,7 +201,8 @@ const file=e.target.files[0];
 if(!file)return;
 
 
-image.src=URL.createObjectURL(file);
+
+preview.src=URL.createObjectURL(file);
 
 
 
@@ -152,56 +212,83 @@ cropper.destroy();
 
 
 
-cropper=new Cropper(image,{
+cropper=new Cropper(preview,{
 
-viewMode:1,
+viewMode:2,
 
-dragMode:"move",
+autoCropArea:1,
 
-autoCropArea:0.8,
-
-aspectRatio:NaN,
+background:false,
 
 responsive:true,
 
-crop(event){
+guides:false,
 
-document.getElementById("width").value=
-Math.round(event.detail.width);
+center:false,
+
+highlight:false,
+
+cropBoxMovable:true,
+
+cropBoxResizable:true,
 
 
-document.getElementById("height").value=
-Math.round(event.detail.height);
+crop(e){
+
+widthInput.value=Math.round(e.detail.width);
+
+heightInput.value=Math.round(e.detail.height);
 
 }
 
 });
 
 
-};
+
+status.textContent="Image chargée";
+
+
+});
 
 
 
-function downloadImage(){
+
+
+resizeBtn.onclick=()=>{
 
 
 if(!cropper)return;
 
 
-const canvas=cropper.getCroppedCanvas();
+
+const canvas=cropper.getCroppedCanvas({
+
+width:Number(widthInput.value),
+
+height:Number(heightInput.value)
+
+});
 
 
-const link=document.createElement("a");
 
-link.download="image-redimensionnee.png";
-
-link.href=canvas.toDataURL();
+const url=canvas.toDataURL("image/png");
 
 
-link.click();
+
+preview.src=url;
 
 
-}
+download.href=url;
+
+download.download="toolforge-image.png";
+
+download.style.display="block";
+
+
+status.textContent="Image redimensionnée";
+
+
+};
 
 
 

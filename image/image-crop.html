@@ -76,10 +76,10 @@ height:500px;
 background:#0B1220;
 border-radius:15px;
 display:none;
-align-items:center;
-justify-content:center;
 position:relative;
 overflow:hidden;
+align-items:center;
+justify-content:center;
 }
 
 .img{
@@ -92,8 +92,8 @@ position:relative;
 .crop{
 position:absolute;
 border:2px solid var(--accent);
-width:200px;
-height:200px;
+width:180px;
+height:180px;
 top:50px;
 left:50px;
 cursor:move;
@@ -101,21 +101,20 @@ cursor:move;
 
 .handle{
 position:absolute;
-width:12px;
-height:12px;
+width:10px;
+height:10px;
 background:var(--accent);
 }
 
-.tl{top:-6px;left:-6px;cursor:nwse-resize}
-.tr{top:-6px;right:-6px;cursor:nesw-resize}
-.bl{bottom:-6px;left:-6px;cursor:nesw-resize}
-.br{bottom:-6px;right:-6px;cursor:nwse-resize}
+.tl{top:-5px;left:-5px;cursor:nwse-resize}
+.tr{top:-5px;right:-5px;cursor:nesw-resize}
+.bl{bottom:-5px;left:-5px;cursor:nesw-resize}
+.br{bottom:-5px;right:-5px;cursor:nwse-resize}
 
 .download{
 display:none;
 text-align:center;
 padding:12px;
-margin-top:10px;
 background:var(--accent);
 color:white;
 border-radius:10px;
@@ -139,7 +138,7 @@ margin-top:10px;
 
 <h1>Recadrage d’Image</h1>
 
-<p>Sélectionnez une zone à recadrer.</p>
+<p>Sélectionnez une zone puis recadrez.</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -158,7 +157,7 @@ margin-top:10px;
 
 </div>
 
-<button id="export">Télécharger</button>
+<button id="cropBtn">Recadrer</button>
 
 <a id="download" class="download">Télécharger</a>
 
@@ -174,6 +173,7 @@ const file=document.getElementById("file");
 const img=document.getElementById("img");
 const workspace=document.getElementById("workspace");
 const crop=document.getElementById("crop");
+const cropBtn=document.getElementById("cropBtn");
 const download=document.getElementById("download");
 const status=document.getElementById("status");
 
@@ -181,6 +181,7 @@ let scale=1;
 let imgW=0;
 let imgH=0;
 
+// LOAD IMAGE
 file.onchange=e=>{
 const f=e.target.files[0];
 if(!f)return;
@@ -192,7 +193,6 @@ img.onload=()=>{
 imgW=img.naturalWidth;
 imgH=img.naturalHeight;
 
-// fit image workspace
 const maxW=700;
 const maxH=450;
 
@@ -207,7 +207,7 @@ status.textContent="Image chargée";
 };
 };
 
-// MOVE crop
+// MOVE crop ONLY inside workspace
 let dragging=false;
 let startX,startY,startLeft,startTop;
 
@@ -224,12 +224,22 @@ window.onmouseup=()=>dragging=false;
 window.onmousemove=e=>{
 if(!dragging)return;
 
-crop.style.left=startLeft+(e.clientX-startX)+"px";
-crop.style.top=startTop+(e.clientY-startY)+"px";
+let x=startLeft+(e.clientX-startX);
+let y=startTop+(e.clientY-startY);
+
+// LIMIT BOUNDS
+const maxX=workspace.clientWidth-crop.offsetWidth;
+const maxY=workspace.clientHeight-crop.offsetHeight;
+
+x=Math.max(0,Math.min(maxX,x));
+y=Math.max(0,Math.min(maxY,y));
+
+crop.style.left=x+"px";
+crop.style.top=y+"px";
 };
 
-// EXPORT
-document.getElementById("export").onclick=()=>{
+// CROP ACTION (preview + export ready)
+cropBtn.onclick=()=>{
 
 const canvas=document.createElement("canvas");
 const ctx=canvas.getContext("2d");
@@ -237,7 +247,6 @@ const ctx=canvas.getContext("2d");
 const imgRect=img.getBoundingClientRect();
 const cropRect=crop.getBoundingClientRect();
 
-// conversion coords image réelle
 const x=(cropRect.left-imgRect.left)/scale;
 const y=(cropRect.top-imgRect.top)/scale;
 const w=cropRect.width/scale;
@@ -250,12 +259,15 @@ ctx.drawImage(img,x,y,w,h,0,0,w,h);
 
 const url=canvas.toDataURL("image/png");
 
+// show preview directly in image area
+img.src=url;
+
+// show download
 download.href=url;
 download.download="toolforge-crop.png";
 download.style.display="block";
 
 status.textContent="Image recadrée";
-
 };
 
 </script>

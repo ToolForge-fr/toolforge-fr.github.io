@@ -53,12 +53,13 @@ color:var(--muted);
 margin-bottom:20px;
 }
 
+/* inputs */
 input,button,select{
 width:100%;
 padding:12px;
 border-radius:10px;
 border:1px solid var(--border);
-margin-bottom:10px;
+margin-bottom:12px;
 background:#0B1220;
 color:white;
 }
@@ -67,6 +68,7 @@ button{
 background:var(--accent);
 cursor:pointer;
 font-weight:600;
+margin-top:10px;
 }
 
 /* stage */
@@ -82,25 +84,49 @@ position:relative;
 overflow:hidden;
 }
 
+/* image */
 #img{
 max-width:100%;
 max-height:100%;
 transform-origin:center center;
 }
 
-/* angle input row */
-.row{
+/* wheel */
+.wheel{
+position:absolute;
+width:140px;
+height:140px;
+border-radius:50%;
+border:2px solid var(--accent);
+background:rgba(11,18,32,0.4);
+cursor:pointer;
 display:flex;
-gap:10px;
 align-items:center;
-margin-bottom:10px;
+justify-content:center;
 }
 
-.row input{
+.wheel::after{
+content:"";
+width:10px;
+height:10px;
+background:var(--accent);
+border-radius:50%;
+position:absolute;
+top:10px;
+}
+
+/* controls */
+.controls{
+margin-top:15px;
+display:flex;
+gap:10px;
+}
+
+.controls input{
 flex:2;
 }
 
-.row select{
+.controls select{
 flex:1;
 }
 
@@ -108,25 +134,17 @@ flex:1;
 .mirror{
 display:flex;
 align-items:center;
-gap:10px;
-margin-bottom:10px;
+justify-content:space-between;
+margin-top:10px;
 color:var(--muted);
 }
 
 .mirror label{
-min-width:160px;
 text-align:left;
 }
 
 .mirror input{
 width:auto;
-}
-
-/* angle display */
-.angle{
-text-align:center;
-color:var(--muted);
-margin:10px 0;
 }
 
 </style>
@@ -141,24 +159,26 @@ margin:10px 0;
 
 <h1>Rotation d’image</h1>
 
-<p>Rotation + miroir avec unités modifiables.</p>
+<p>Faites pivoter et refléter vos images.</p>
 
 <input type="file" id="file" accept="image/*">
 
 <div class="stage" id="stage">
+
 <img id="img">
+
+<div class="wheel" id="wheel"></div>
+
 </div>
 
-<!-- ANGLE + UNIT -->
-<div class="row">
+<!-- ANGLE INPUT -->
+<div class="controls">
 <input type="number" id="angleInput" value="0">
 <select id="unit">
 <option value="deg">Degrés</option>
 <option value="rad">Radians</option>
 </select>
 </div>
-
-<div class="angle" id="angleText">0°</div>
 
 <!-- MIRROR -->
 <div class="mirror">
@@ -167,8 +187,6 @@ margin:10px 0;
 </div>
 
 <button id="downloadBtn">Télécharger</button>
-
-<br><br>
 
 </div>
 
@@ -179,13 +197,15 @@ margin:10px 0;
 const file=document.getElementById("file");
 const img=document.getElementById("img");
 const stage=document.getElementById("stage");
+const wheel=document.getElementById("wheel");
 const angleInput=document.getElementById("angleInput");
 const unit=document.getElementById("unit");
 const mirror=document.getElementById("mirror");
-const angleText=document.getElementById("angleText");
 
 let angleDeg=0;
+let dragging=false;
 
+/* LOAD */
 file.onchange=e=>{
 const f=e.target.files[0];
 if(!f)return;
@@ -194,21 +214,47 @@ img.src=URL.createObjectURL(f);
 stage.style.display="flex";
 };
 
+/* WHEEL ROTATION */
+wheel.addEventListener("mousedown",()=>dragging=true);
+window.addEventListener("mouseup",()=>dragging=false);
+
+window.addEventListener("mousemove",(e)=>{
+
+if(!dragging)return;
+
+const rect=stage.getBoundingClientRect();
+const cx=rect.left+rect.width/2;
+const cy=rect.top+rect.height/2;
+
+const dx=e.clientX-cx;
+const dy=e.clientY-cy;
+
+angleDeg=Math.atan2(dy,dx)*(180/Math.PI)+90;
+
+angleInput.value=Math.round(angleDeg);
+applyTransform();
+
+});
+
+/* INPUT ANGLE */
 function updateAngle(){
 
 let v=parseFloat(angleInput.value)||0;
 
 if(unit.value==="rad"){
 angleDeg=v*180/Math.PI;
-angleText.textContent=`${v.toFixed(2)} rad`;
 }else{
 angleDeg=v;
-angleText.textContent=`${v}°`;
 }
 
 applyTransform();
 }
 
+angleInput.addEventListener("input",updateAngle);
+unit.addEventListener("change",updateAngle);
+mirror.addEventListener("change",applyTransform);
+
+/* APPLY */
 function applyTransform(){
 
 let t=`rotate(${angleDeg}deg)`;
@@ -219,10 +265,6 @@ t+=` scaleX(-1)`;
 
 img.style.transform=t;
 }
-
-angleInput.addEventListener("input",updateAngle);
-unit.addEventListener("change",updateAngle);
-mirror.addEventListener("change",applyTransform);
 
 /* DOWNLOAD */
 document.getElementById("downloadBtn").onclick=()=>{

@@ -70,7 +70,7 @@ cursor:pointer;
 font-weight:600;
 }
 
-/* PREVIEW BEFORE */
+/* preview before */
 .preview-before{
 display:none;
 margin-top:15px;
@@ -79,9 +79,10 @@ margin-top:15px;
 .preview-before img{
 width:100%;
 border-radius:10px;
+border:1px solid var(--border);
 }
 
-/* COMPARE */
+/* compare */
 .compare{
 position:relative;
 width:100%;
@@ -93,6 +94,7 @@ display:none;
 background:#0B1220;
 }
 
+/* images */
 .compare img{
 position:absolute;
 width:100%;
@@ -100,10 +102,17 @@ height:100%;
 object-fit:contain;
 }
 
-/* AFTER */
+/* AFTER (image améliorée à droite) */
 .after{
 clip-path:inset(0 50% 0 0);
-filter:brightness(1.15) contrast(1.2) saturate(1.1);
+
+/* pseudo IA enhancement */
+filter:brightness(1.25) contrast(1.25) saturate(1.15) blur(0.2px);
+}
+
+/* BEFORE (gauche) */
+.before{
+clip-path:inset(0 0 0 50%);
 }
 
 /* slider */
@@ -117,7 +126,6 @@ background:white;
 cursor:ew-resize;
 }
 
-/* handle */
 .handle{
 position:absolute;
 top:50%;
@@ -164,7 +172,7 @@ color:var(--muted);
 
 <h1>Amélioration d’image</h1>
 
-<p>Améliore contraste, luminosité et netteté directement dans le navigateur.</p>
+<p>Améliore automatiquement contraste, luminosité et détails.</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -173,14 +181,14 @@ color:var(--muted);
 
 <button id="apply">Améliorer</button>
 
-<div class="preview-before" id="previewBefore">
+<div class="preview-before">
 <img id="beforePreview">
 </div>
 
 <div class="compare" id="compare">
 
-<img id="before">
 <img id="after" class="after">
+<img id="before" class="before">
 
 <div class="slider" id="slider">
 <div class="handle">⇆</div>
@@ -223,6 +231,7 @@ imgFile=f;
 const url=URL.createObjectURL(f);
 
 before.src=url;
+after.src=url;
 beforePreview.src=url;
 
 document.querySelector(".preview-before").style.display="block";
@@ -232,7 +241,7 @@ download.style.display="none";
 status.textContent="Image chargée";
 };
 
-/* APPLY ENHANCE */
+/* APPLY "AI" ENHANCEMENT */
 document.getElementById("apply").onclick=()=>{
 
 if(!imgFile)return;
@@ -248,13 +257,24 @@ const ctx=canvas.getContext("2d");
 canvas.width=img.width;
 canvas.height=img.height;
 
-ctx.filter=
-`brightness(${levelInput.value})
+/* pseudo IA enhancement multi-pass */
+ctx.filter=`
+brightness(${levelInput.value})
 contrast(${levelInput.value})
-saturate(${levelInput.value})`;
+saturate(${levelInput.value})
+blur(0.2px)
+`;
 
 ctx.drawImage(img,0,0);
 
+/* second pass sharpening simulation */
+ctx.globalAlpha=0.25;
+ctx.filter="contrast(1.4) brightness(1.1)";
+ctx.drawImage(canvas,0,0);
+
+ctx.globalAlpha=1;
+
+/* output */
 const url=canvas.toDataURL("image/jpeg");
 
 after.src=url;
@@ -289,7 +309,7 @@ x=Math.max(0,Math.min(x,rect.width));
 const percent=(x/rect.width)*100;
 
 slider.style.left=percent+"%";
-after.style.clipPath=`inset(0 ${100-percent}% 0 0)`;
+before.style.clipPath=`inset(0 ${100-percent}% 0 0)`;
 
 });
 

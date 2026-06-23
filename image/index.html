@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ToolForge - Outils gratuits en ligne</title>
-
-<meta name="description" content="ToolForge : suite d’outils gratuits pour audio, image, vidéo et fichiers.">
+<title>ToolForge - Image Tools</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -29,27 +27,28 @@ body{
 }
 
 header{
+  padding:40px;
   text-align:center;
-  padding:50px 20px;
+  background:#111c3a;
 }
 
 header h1{
-  font-size:40px;
-  margin-bottom:10px;
+  margin:0;
+  font-size:36px;
 }
 
 header p{
-  color:var(--muted);
+  opacity:0.8;
 }
 
 .container{
-  width:min(1100px,92%);
+  max-width:900px;
   margin:auto;
-  padding-bottom:60px;
+  padding:20px;
 }
 
 .section{
-  margin-top:40px;
+  margin-top:30px;
 }
 
 .section h2{
@@ -65,39 +64,28 @@ header p{
 .card{
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:15px;
-  padding:18px;
+  border-radius:10px;
+  padding:20px;
   text-decoration:none;
   color:white;
-  transition:.2s;
+  transition:0.2s;
 }
 
 .card:hover{
-  transform:translateY(-3px);
-  border-color:var(--accent);
+  transform:scale(1.03);
+  background:#273449;
 }
 
 .small{
-  opacity:.7;
+  opacity:0.7;
   font-size:13px;
   margin-top:5px;
-}
-
-.badge{
-  display:inline-block;
-  padding:4px 8px;
-  font-size:12px;
-  background:#0B1220;
-  border:1px solid var(--border);
-  border-radius:8px;
-  margin-bottom:10px;
-  color:var(--muted);
 }
 
 footer{
   text-align:center;
   padding:30px;
-  opacity:.5;
+  opacity:0.5;
 }
 </style>
 </head>
@@ -106,75 +94,60 @@ footer{
 
 <header>
   <h1>ToolForge</h1>
-  <p>Suite d’outils gratuits pour fichiers audio & images</p>
+  <p>Outils gratuits pour images</p>
 </header>
 
 <div class="container">
 
-<!-- AUDIO -->
-<div class="section">
-<h2>🎧 Audio Tools</h2>
+<h2>Outils disponibles</h2>
 
 <div class="grid">
 
-<a class="card" href="audio/audio-converter.html">
-<div class="badge">Conversion</div>
-Audio Converter
-<div class="small">MP3 / WAV / OGG / WEBM / M4A</div>
+<a class="card" href="image-compressor.html">
+Compresseur d’image
+<div class="small">Réduction de taille des images</div>
 </a>
 
-<a class="card" href="audio/audio-merger.html">
-<div class="badge">Fusion</div>
-Audio Merger
-<div class="small">Combine plusieurs fichiers</div>
+<a class="card" href="image-resize.html">
+Redimensionneur d’image
+<div class="small">Modifier les dimensions</div>
 </a>
 
-<a class="card" href="audio/fade-audio.html">
-<div class="badge">Effet</div>
-Fade Audio
-<div class="small">Fade in / Fade out</div>
-</a>
-
-<a class="card" href="audio/silence-remover.html">
-<div class="badge">Nettoyage</div>
-Silence Remover
-<div class="small">Supprime les silences</div>
-</a>
-
-</div>
-</div>
-
-<!-- IMAGE -->
-<div class="section">
-<h2>🖼️ Image Tools</h2>
-
-<div class="grid">
-
-<a class="card" href="image/image-compressor.html">
-<div class="badge">Optimisation</div>
-Image Compressor
-<div class="small">Réduit la taille des images</div>
-</a>
-
-<a class="card" href="image/image-resize.html">
-<div class="badge">Resize</div>
-Image Resize
-<div class="small">Redimensionnement précis</div>
-</a>
-
-<a class="card" href="image/image-converter.html">
-<div class="badge">Conversion</div>
-Image Converter
+<a class="card" href="image-converter.html">
+Convertisseur d’image
 <div class="small">JPG / PNG / WEBP</div>
 </a>
 
-<a class="card" href="image/image-crop.html">
-<div class="badge">Edition</div>
-Image Crop
+<a class="card" href="image-crop.html">
+Recadrage d’image
 <div class="small">Recadrage interactif</div>
 </a>
 
-</div>
+<a class="card" href="image-rotate-flip.html">
+Rotation / miroir
+<div class="small">Rotation et retournement</div>
+</a>
+
+<a class="card" href="image-upscale.html">
+Amélioration d’image
+<div class="small">Augmenter la résolution</div>
+</a>
+
+<a class="card" href="image-background-remove.html">
+Suppression de fond
+<div class="small">Retirer l’arrière-plan</div>
+</a>
+
+<a class="card" href="image-batch-compress.html">
+Compression en lot
+<div class="small">Plusieurs images à la fois</div>
+</a>
+
+<a class="card" href="image-thumbnail-generator.html">
+Générateur de miniatures
+<div class="small">Création automatique de thumbnails</div>
+</a>
+
 </div>
 
 </div>

@@ -13,6 +13,16 @@
 
 <style>
 
+.home-icon svg{
+  width:24px;
+  height:24px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+  
 :root{
   --bg:#0B1220;
   --card:#151F32;
@@ -253,8 +263,18 @@ footer{
 
     <nav class="menu">
   
-    <a href="../" title="Accueil">
-    ⌂
+    <a href="../" title="Accueil" class="home-icon">
+
+    <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24">
+
+    <path d="M3 11.5L12 3l9 8.5"/>
+    <path d="M5.5 10v10h13V10"/>
+    <path d="M9.5 20v-6h5v6"/>
+
+    </svg>
+
     </a>
 
     </nav>

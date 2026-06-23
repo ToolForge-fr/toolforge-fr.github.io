@@ -8,10 +8,7 @@
 
 <title>Redimensionneur d’Image - ToolForge</title>
 
-<meta name="description" content="Redimensionnez vos images gratuitement avec ToolForge.">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 
 <style>
 
@@ -24,13 +21,12 @@
 --accent:#4F8CFF;
 }
 
-
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
+user-select:none;
 }
-
 
 body{
 font-family:Inter,sans-serif;
@@ -38,13 +34,11 @@ background:var(--bg);
 color:var(--text);
 }
 
-
 .container{
 width:min(900px,92%);
 margin:auto;
 padding:40px 0;
 }
-
 
 .card{
 background:var(--card);
@@ -53,20 +47,15 @@ border-radius:18px;
 padding:25px;
 }
 
-
-h1{
-margin-bottom:10px;
-}
-
+h1{margin-bottom:10px}
 
 p{
 color:var(--muted);
 margin-bottom:20px;
+line-height:1.6;
 }
 
-
 input,button{
-
 width:100%;
 padding:12px;
 border-radius:10px;
@@ -74,437 +63,219 @@ border:1px solid var(--border);
 margin-bottom:10px;
 background:#0B1220;
 color:white;
-
 }
-
 
 button{
-
 background:var(--accent);
 cursor:pointer;
-
+font-weight:600;
 }
-
-
-
 
 .workspace{
-
 margin-top:20px;
-
-width:100%;
-
 height:500px;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
 background:#0B1220;
-
 border-radius:15px;
-
+display:flex;
+align-items:center;
+justify-content:center;
 overflow:hidden;
-
-padding:30px;
-
-}
-
-
-
-
-.resize-box{
-
 position:relative;
-
-border:2px solid var(--accent);
-
-max-width:100%;
-
-max-height:100%;
-
 }
 
+.box{
+position:relative;
+display:none;
+}
 
-
-.resize-box img{
-
+.box img{
 display:block;
-
-max-width:650px;
-
-max-height:420px;
-
-width:auto;
-
-height:auto;
-
+max-width:100%;
+max-height:450px;
 }
-
-
-
-
 
 .handle{
-
 position:absolute;
-
 width:14px;
-
 height:14px;
-
 background:var(--accent);
-
-border-radius:50%;
-
-right:-7px;
-
-bottom:-7px;
-
-cursor:nwse-resize;
-
+border-radius:2px;
 }
 
+.handle.corner{cursor:nwse-resize}
+.handle.side{border-radius:50%;cursor:ew-resize}
 
+.tl{top:-7px;left:-7px}
+.tr{top:-7px;right:-7px}
+.bl{bottom:-7px;left:-7px}
+.br{bottom:-7px;right:-7px}
 
-
+.t{top:-7px;left:50%;transform:translateX(-50%)}
+.b{bottom:-7px;left:50%;transform:translateX(-50%)}
+.l{left:-7px;top:50%;transform:translateY(-50%)}
+.r{right:-7px;top:50%;transform:translateY(-50%)}
 
 .download{
-
 display:none;
-
 text-align:center;
-
 padding:12px;
-
 margin-top:10px;
-
 background:var(--accent);
-
 color:white;
-
-text-decoration:none;
-
 border-radius:10px;
-
+text-decoration:none;
 }
-
-
-
 
 .status{
-
 color:var(--muted);
-
 margin-top:10px;
-
 }
-
-
 
 </style>
 
-
 </head>
-
-
 
 <body>
 
-
 <div class="container">
-
 
 <div class="card">
 
-
 <h1>Redimensionneur d’Image</h1>
 
-
-<p>
-Modifiez la taille de votre image sans la recadrer.
-</p>
-
-
+<p>Redimensionnez vos images librement avec ou sans proportions.</p>
 
 <input type="file" id="file" accept="image/*">
 
+<label>
+<input type="checkbox" id="ratio" checked>
+Garder les proportions
+</label>
 
+<button id="export">Télécharger</button>
 
 <div class="workspace">
 
+<div class="box" id="box">
 
-<div class="resize-box" id="box">
+<img id="img">
 
+<div class="handle corner tl"></div>
+<div class="handle corner tr"></div>
+<div class="handle corner bl"></div>
+<div class="handle corner br"></div>
 
-<img id="preview">
-
-
-<div class="handle" id="handle"></div>
-
+<div class="handle side t"></div>
+<div class="handle side b"></div>
+<div class="handle side l"></div>
+<div class="handle side r"></div>
 
 </div>
 
-
 </div>
 
-
-
-
-<label>Largeur</label>
-
-<input id="width" type="number">
-
-
-<label>Hauteur</label>
-
-<input id="height" type="number">
-
-
-<label>
-
-<input type="checkbox" id="ratio" checked>
-
-Garder les proportions
-
-</label>
-
-
-
-<button id="resize">
-
-Redimensionner
-
-</button>
-
-
-
-<a id="download" class="download">
-
-Télécharger
-
-</a>
-
+<a id="download" class="download">Télécharger</a>
 
 <div class="status" id="status"></div>
 
-
-
 </div>
 
 </div>
-
-
-
-
 
 <script>
 
-
 const file=document.getElementById("file");
-
-const preview=document.getElementById("preview");
-
+const img=document.getElementById("img");
 const box=document.getElementById("box");
-
-const handle=document.getElementById("handle");
-
-
-const width=document.getElementById("width");
-
-const height=document.getElementById("height");
-
 const ratio=document.getElementById("ratio");
-
-
 const download=document.getElementById("download");
-
 const status=document.getElementById("status");
 
-const btn=document.getElementById("resize");
-
-
-let originalRatio;
-
-
+let w=300,h=300;
+let dragging=null;
+let startX,startY,startW,startH;
 
 file.onchange=e=>{
+const f=e.target.files[0];
+if(!f)return;
 
+img.src=URL.createObjectURL(f);
 
-const img=e.target.files[0];
+img.onload=()=>{
+w=img.naturalWidth;
+h=img.naturalHeight;
 
-
-if(!img)return;
-
-
-preview.src=URL.createObjectURL(img);
-
-
-
-preview.onload=()=>{
-
-
-originalRatio=preview.naturalWidth/preview.naturalHeight;
-
-
-width.value=preview.naturalWidth;
-
-height.value=preview.naturalHeight;
-
-
-};
-
+apply();
+box.style.display="inline-block";
 
 status.textContent="Image chargée";
-
-
+}
 };
 
-
-
-
-
-width.oninput=()=>{
-
-if(ratio.checked){
-
-height.value=Math.round(width.value/originalRatio);
-
+function apply(){
+img.style.width=w+"px";
+img.style.height=h+"px";
 }
 
-};
-
-
-
-height.oninput=()=>{
-
-if(ratio.checked){
-
-width.value=Math.round(height.value*originalRatio);
-
+function start(type,e){
+dragging=type;
+startX=e.clientX;
+startY=e.clientY;
+startW=w;
+startH=h;
 }
 
+document.querySelectorAll(".handle").forEach(h=>{
+h.onmousedown=e=>{
+start(h.classList[2],e);
 };
+});
 
-
-
-
-
-
-let resizing=false;
-
-
-
-handle.onmousedown=()=>{
-
-resizing=true;
-
-};
-
-
-
-window.onmouseup=()=>{
-
-resizing=false;
-
-};
-
-
+window.onmouseup=()=>dragging=null;
 
 window.onmousemove=e=>{
+if(!dragging)return;
 
+let dx=e.clientX-startX;
+let dy=e.clientY-startY;
 
-if(!resizing)return;
-
-
-
-const rect=box.getBoundingClientRect();
-
-
-let newWidth=e.clientX-rect.left;
-
-
-if(newWidth<100)newWidth=100;
-
-
-
-preview.style.width=newWidth+"px";
-
-
-width.value=Math.round(newWidth);
-
-
+if(dragging.includes("r")) w=startW+dx;
+if(dragging.includes("l")) w=startW-dx;
+if(dragging.includes("b")) h=startH+dy;
+if(dragging.includes("t")) h=startH-dy;
 
 if(ratio.checked){
-
-height.value=
-Math.round(newWidth/originalRatio);
-
+const r=startW/startH;
+h=w/r;
 }
 
+w=Math.max(50,w);
+h=Math.max(50,h);
 
-
+apply();
 };
 
-
-
-
-
-
-btn.onclick=()=>{
-
+document.getElementById("export").onclick=()=>{
 
 const canvas=document.createElement("canvas");
-
 const ctx=canvas.getContext("2d");
 
+canvas.width=w;
+canvas.height=h;
 
-
-canvas.width=Number(width.value);
-
-canvas.height=Number(height.value);
-
-
-
-ctx.drawImage(
-
-preview,
-
-0,
-
-0,
-
-canvas.width,
-
-canvas.height
-
-);
-
-
+ctx.drawImage(img,0,0,w,h);
 
 const url=canvas.toDataURL("image/png");
 
-
-
 download.href=url;
-
 download.download="toolforge-resize.png";
-
 download.style.display="block";
 
-
-status.textContent="Image redimensionnée";
-
+status.textContent="Image exportée";
 
 };
 
-
-
 </script>
 
-
 </body>
-
 </html>

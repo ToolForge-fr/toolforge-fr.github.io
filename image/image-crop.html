@@ -1,102 +1,133 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Crop Image - ToolForge</title>
+<title>Recadrage d’Image - ToolForge</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
+
+:root{
+--bg:#0B1220;
+--card:#151F32;
+--border:#24324D;
+--text:#fff;
+--muted:#A8B3CF;
+--accent:#4F8CFF;
+}
+
+*{
 margin:0;
+padding:0;
+box-sizing:border-box;
+user-select:none;
+}
+
+body{
 font-family:Inter,sans-serif;
-background:#0B1220;
-color:white;
+background:var(--bg);
+color:var(--text);
 }
 
 .container{
-width:900px;
-max-width:95%;
+width:min(900px,92%);
 margin:auto;
-padding:30px;
+padding:40px 0;
 }
 
 .card{
-background:#151F32;
-padding:20px;
-border-radius:15px;
-border:1px solid #24324D;
+background:var(--card);
+border:1px solid var(--border);
+border-radius:18px;
+padding:25px;
 }
 
 h1{margin-bottom:10px}
-p{opacity:.7}
 
-.upload{
+p{
+color:var(--muted);
+margin-bottom:20px;
+}
+
+input,button{
 width:100%;
-padding:10px;
-margin:10px 0;
+padding:12px;
+border-radius:10px;
+border:1px solid var(--border);
+margin-bottom:10px;
 background:#0B1220;
 color:white;
-border:1px solid #24324D;
-border-radius:10px;
 }
 
-.stage{
+button{
+background:var(--accent);
+cursor:pointer;
+font-weight:600;
+}
+
+.workspace{
+margin-top:20px;
+height:500px;
+background:#0B1220;
+border-radius:15px;
+display:none;
+align-items:center;
+justify-content:center;
 position:relative;
-display:inline-block;
-max-width:100%;
-margin-top:15px;
+overflow:hidden;
 }
 
-.stage img{
+.img{
 max-width:100%;
+max-height:100%;
 display:block;
-border-radius:10px;
 }
 
-.crop-box{
+.crop{
 position:absolute;
-border:2px dashed #4F8CFF;
-background:rgba(79,140,255,0.15);
+border:2px solid var(--accent);
+width:200px;
+height:200px;
+top:50px;
+left:50px;
 cursor:move;
 }
 
 .handle{
-width:10px;
-height:10px;
-background:#4F8CFF;
 position:absolute;
-right:-5px;
-bottom:-5px;
-cursor:se-resize;
+width:12px;
+height:12px;
+background:var(--accent);
 }
 
-button{
-width:100%;
-margin-top:15px;
-padding:12px;
-background:#4F8CFF;
-border:none;
-color:white;
-font-weight:bold;
-border-radius:10px;
-cursor:pointer;
-}
+.tl{top:-6px;left:-6px;cursor:nwse-resize}
+.tr{top:-6px;right:-6px;cursor:nesw-resize}
+.bl{bottom:-6px;left:-6px;cursor:nesw-resize}
+.br{bottom:-6px;right:-6px;cursor:nwse-resize}
 
 .download{
 display:none;
-margin-top:10px;
 text-align:center;
-padding:10px;
-background:#4F8CFF;
+padding:12px;
+margin-top:10px;
+background:var(--accent);
 color:white;
-text-decoration:none;
 border-radius:10px;
+text-decoration:none;
+}
+
+.status{
+color:var(--muted);
+margin-top:10px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -105,112 +136,133 @@ border-radius:10px;
 
 <div class="card">
 
-<h1>Crop Image</h1>
-<p>Déplace et redimensionne le cadre pour recadrer.</p>
+<h1>Recadrage d’Image</h1>
 
-<input class="upload" type="file" id="file" accept="image/*">
+<p>Sélectionnez une zone de votre image.</p>
 
-<div class="stage" id="stage">
-<img id="img">
-<div class="crop-box" id="box">
-<div class="handle" id="handle"></div>
+<input type="file" id="file" accept="image/*">
+
+<div class="workspace" id="workspace">
+
+<img id="img" class="img">
+
+<div class="crop" id="crop">
+
+<div class="handle tl"></div>
+<div class="handle tr"></div>
+<div class="handle bl"></div>
+<div class="handle br"></div>
+
 </div>
+
 </div>
 
-<button id="crop">Recadrer</button>
+<button id="export">Télécharger</button>
 
 <a id="download" class="download">Télécharger</a>
 
+<div class="status" id="status"></div>
+
 </div>
+
 </div>
 
 <script>
 
-const file = document.getElementById("file");
-const img = document.getElementById("img");
-const box = document.getElementById("box");
-const handle = document.getElementById("handle");
-const stage = document.getElementById("stage");
-const download = document.getElementById("download");
+const file=document.getElementById("file");
+const img=document.getElementById("img");
+const workspace=document.getElementById("workspace");
 
-let isDragging = false;
-let isResizing = false;
+const crop=document.getElementById("crop");
 
-let startX, startY, startW, startH;
+const download=document.getElementById("download");
+const status=document.getElementById("status");
 
-file.addEventListener("change", (e)=>{
-img.src = URL.createObjectURL(e.target.files[0]);
+let scale=1;
+let imgW=0;
+let imgH=0;
 
-img.onload = ()=>{
-box.style.left = "20px";
-box.style.top = "20px";
-box.style.width = "150px";
-box.style.height = "150px";
+file.onchange=e=>{
+const f=e.target.files[0];
+if(!f)return;
+
+img.src=URL.createObjectURL(f);
+
+img.onload=()=>{
+
+imgW=img.naturalWidth;
+imgH=img.naturalHeight;
+
+// fit workspace
+const maxW=700;
+const maxH=450;
+
+scale=Math.min(maxW/imgW,maxH/imgH,1);
+
+img.style.width=imgW*scale+"px";
+img.style.height=imgH*scale+"px";
+
+workspace.style.display="flex";
+
+status.textContent="Image chargée";
 };
-});
+};
 
-// drag box
-box.addEventListener("mousedown", (e)=>{
-if(e.target === handle) return;
-isDragging = true;
-startX = e.clientX - box.offsetLeft;
-startY = e.clientY - box.offsetTop;
-});
+// drag crop box
+let dragging=false;
+let startX,startY,startLeft,startTop;
 
-document.addEventListener("mousemove", (e)=>{
-if(isDragging){
-box.style.left = (e.clientX - startX) + "px";
-box.style.top = (e.clientY - startY) + "px";
-}
+crop.onmousedown=e=>{
+dragging=true;
+startX=e.clientX;
+startY=e.clientY;
+startLeft=crop.offsetLeft;
+startTop=crop.offsetTop;
+};
 
-if(isResizing){
-box.style.width = (e.clientX - box.offsetLeft) + "px";
-box.style.height = (e.clientY - box.offsetTop) + "px";
-}
-});
+window.onmouseup=()=>dragging=false;
 
-document.addEventListener("mouseup", ()=>{
-isDragging = false;
-isResizing = false;
-});
+window.onmousemove=e=>{
+if(!dragging)return;
 
-handle.addEventListener("mousedown",(e)=>{
-e.stopPropagation();
-isResizing = true;
-});
+let dx=e.clientX-startX;
+let dy=e.clientY-startY;
 
-// crop
-document.getElementById("crop").addEventListener("click", ()=>{
+crop.style.left=startLeft+dx+"px";
+crop.style.top=startTop+dy+"px";
+};
 
-const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d");
+// EXPORT
+document.getElementById("export").onclick=()=>{
 
-const scaleX = img.naturalWidth / img.width;
-const scaleY = img.naturalHeight / img.height;
+const canvas=document.createElement("canvas");
+const ctx=canvas.getContext("2d");
 
-const x = box.offsetLeft * scaleX;
-const y = box.offsetTop * scaleY;
-const w = box.offsetWidth * scaleX;
-const h = box.offsetHeight * scaleY;
+const rect=crop.getBoundingClientRect();
+const imgRect=img.getBoundingClientRect();
 
-canvas.width = w;
-canvas.height = h;
+const x=(rect.left-imgRect.left)/scale;
+const y=(rect.top-imgRect.top)/scale;
+const w=rect.width/scale;
+const h=rect.height/scale;
 
-ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+canvas.width=w;
+canvas.height=h;
 
-canvas.toBlob((blob)=>{
+ctx.drawImage(img,x,y,w,h,0,0,w,h);
 
-const url = URL.createObjectURL(blob);
+const url=canvas.toDataURL("image/png");
 
-download.href = url;
-download.download = "toolforge-crop.jpg";
-download.style.display = "block";
+download.href=url;
+download.download="toolforge-crop.png";
+download.style.display="block";
 
-});
+status.textContent="Image recadrée";
 
-});
+};
 
 </script>
 
 </body>
+
 </html>

@@ -82,7 +82,7 @@ overflow:hidden;
 position:relative;
 }
 
-/* IMAGE WRAPPER (IMPORTANT FIX) */
+/* image wrapper */
 #imgWrap{
 position:relative;
 display:inline-block;
@@ -103,7 +103,7 @@ background:rgba(0,0,0,0.45);
 pointer-events:none;
 }
 
-/* crop */
+/* crop box */
 .crop{
 position:absolute;
 border:2px solid var(--accent);
@@ -218,7 +218,7 @@ let scale=1;
 let naturalW=0;
 let naturalH=0;
 
-/* LOAD IMAGE */
+/* LOAD */
 file.onchange=e=>{
 const f=e.target.files[0];
 if(!f)return;
@@ -238,7 +238,7 @@ img.style.height=naturalH*scale+"px";
 
 workspace.style.display="flex";
 
-/* crop = taille exacte image affichée */
+/* init crop = image size */
 crop.style.left="0px";
 crop.style.top="0px";
 crop.style.width=img.offsetWidth+"px";
@@ -246,7 +246,7 @@ crop.style.height=img.offsetHeight+"px";
 };
 };
 
-/* MOVE / RESIZE */
+/* DRAG + RESIZE */
 let mode=null;
 let sx,sy,sl,st,sw,sh;
 
@@ -300,13 +300,18 @@ if(mode==="bm"){h=sh+dy;}
 if(mode==="ml"){x=sl+dx;w=sw-dx;}
 if(mode==="mr"){w=sw+dx;}
 
-/* LIMIT STRICT IMAGE AREA */
+/* 🔥 FIX ORDER : SIZE FIRST THEN POSITION */
+
 const maxW=img.offsetWidth;
 const maxH=img.offsetHeight;
 
-w=Math.max(40,Math.min(w,maxW-x));
-h=Math.max(40,Math.min(h,maxH-y));
+let min=40;
 
+/* clamp size */
+w=Math.max(min,Math.min(w,maxW));
+h=Math.max(min,Math.min(h,maxH));
+
+/* clamp position based on corrected size */
 x=Math.max(0,Math.min(x,maxW-w));
 y=Math.max(0,Math.min(y,maxH-h));
 

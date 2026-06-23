@@ -49,7 +49,7 @@ padding:40px 0;
 
 .card{
 background:var(--card);
-border:1px solid(var(--border));
+border:1px solid var(--border);
 border-radius:18px;
 padding:25px;
 }
@@ -67,142 +67,237 @@ line-height:1.6;
 }
 
 
+
 input,button{
 
 width:100%;
 padding:12px;
+
 border-radius:10px;
+
 border:1px solid var(--border);
+
 margin-bottom:10px;
+
 background:#0B1220;
+
 color:white;
 
 }
 
 
+
 button{
 
 background:var(--accent);
+
 cursor:pointer;
+
 font-weight:600;
 
 }
 
 
-/* couleur */
+
+/* fond vert */
+
+
+.green-label{
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
+margin-bottom:15px;
+
+color:white;
+
+}
+
+
+
+.green-label input{
+
+width:16px;
+
+height:16px;
+
+margin:0;
+
+}
+
+
+
+
 
 .color-zone{
 
 display:none;
-margin-bottom:15px;
+
+margin-top:15px;
+
+margin-bottom:25px;
 
 }
+
 
 
 #selectedColor{
 
-width:45px;
-height:45px;
+width:22px;
+
+height:22px;
+
 
 border-radius:50%;
 
+
 background:#00ff00;
+
 
 border:2px solid white;
 
-cursor:pointer;
+
+margin-top:15px;
+
 
 }
+
 
 
 
 #colorPanel{
 
+
 display:none;
+
 
 padding:15px;
 
+
 border:1px solid var(--border);
+
 
 border-radius:15px;
 
+
 margin-top:15px;
 
+
 }
+
+
 
 
 
 #colorBox{
 
+
 height:220px;
+
 
 width:100%;
 
+
 border-radius:12px;
 
+
 position:relative;
+
 
 cursor:pointer;
 
 
+
 background:
+
 linear-gradient(to right,#fff,transparent),
+
 linear-gradient(to bottom,#000,transparent),
+
 hsl(120,100%,50%);
 
+
 }
+
 
 
 
 #colorCursor{
 
+
 position:absolute;
 
+
 width:18px;
+
 height:18px;
+
 
 border-radius:50%;
 
+
 border:2px solid white;
+
 
 box-shadow:0 0 5px black;
 
+
 left:50%;
+
 top:50%;
 
+
 }
+
+
 
 
 
 #hue{
 
+
 height:15px;
 
 margin-top:15px;
+
 
 }
 
 
 
+
 #pipettePreview{
+
 
 position:fixed;
 
+
 width:90px;
+
 
 height:90px;
 
+
 border-radius:50%;
+
 
 border:3px solid white;
 
+
 pointer-events:none;
+
 
 display:none;
 
+
 z-index:999;
 
+
 box-shadow:0 0 15px black;
+
 
 }
 
@@ -212,164 +307,245 @@ box-shadow:0 0 15px black;
 
 .preview-before{
 
+
 display:none;
+
 
 margin-top:20px;
 
+
 }
+
 
 
 
 .preview-before img{
 
+
 width:100%;
+
 
 border-radius:10px;
 
+
 cursor:crosshair;
 
+
 }
+
+
 
 
 
 
 .compare{
 
+
 position:relative;
+
 
 width:100%;
 
+
 height:500px;
+
 
 overflow:hidden;
 
+
 border-radius:10px;
+
 
 margin-top:20px;
 
+
 display:none;
+
 
 background:#0B1220;
 
+
 }
+
 
 
 
 .compare img{
 
+
 position:absolute;
+
 
 width:100%;
 
+
 height:100%;
+
 
 object-fit:contain;
 
+
 }
+
+
 
 
 
 .before{
 
+
 clip-path:inset(0 50% 0 0);
+
 
 z-index:2;
 
+
 }
+
+
 
 
 
 .after{
 
+
 clip-path:inset(0 0 0 50%);
+
 
 z-index:2;
 
+
 }
+
+
 
 
 
 .slider{
 
+
 position:absolute;
+
 
 top:0;
 
+
 left:50%;
+
 
 height:100%;
 
+
 width:3px;
+
 
 background:white;
 
+
 z-index:5;
 
+
 }
+
+
 
 
 
 .handle{
 
+
 position:absolute;
+
 
 top:50%;
 
+
 left:50%;
+
+
 
 transform:translate(-50%,-50%);
 
+
+
 width:42px;
+
 
 height:42px;
 
+
 border-radius:50%;
+
 
 background:var(--accent);
 
+
 display:flex;
+
 
 align-items:center;
 
+
 justify-content:center;
+
 
 font-size:20px;
 
+
 box-shadow:0 0 12px #000;
 
+
 }
+
+
+
 
 
 
 .download{
 
+
 display:none;
+
 
 text-align:center;
 
+
 padding:12px;
+
 
 margin-top:10px;
 
+
 background:var(--accent);
+
 
 color:white;
 
+
 text-decoration:none;
+
 
 border-radius:10px;
 
+
 }
+
+
 
 
 
 .status{
 
+
 margin-top:10px;
+
 
 color:var(--muted);
 
+
 }
+
 
 </style>
 
@@ -388,21 +564,27 @@ color:var(--muted);
 
 
 <p>
+
 Supprimez automatiquement l’arrière-plan de vos images directement dans le navigateur.
+
 </p>
+
 
 
 <input type="file" id="file" accept="image/*">
 
 
 
-<label style="display:flex;align-items:center;gap:10px">
 
-<input id="greenMode" type="checkbox" style="width:auto">
+<label class="green-label">
 
-Fond vert
+<input id="greenMode" type="checkbox">
+
+<span>Fond vert</span>
 
 </label>
+
+
 
 
 
@@ -416,11 +598,15 @@ Fond vert
 <div id="colorPanel">
 
 
+
 <div id="colorBox">
+
 
 <div id="colorCursor"></div>
 
+
 </div>
+
 
 
 <input id="hue" type="range" min="0" max="360" value="120">
@@ -428,35 +614,43 @@ Fond vert
 
 
 <button id="validateColor">
+
 Valider
+
 </button>
 
 
-</div>
-
 
 </div>
 
+</div>
 
 
 
 
 <button id="picker">
+
 🖌 Pipette
+
 </button>
 
 
 
 <button id="remove">
+
 Supprimer le fond
+
 </button>
+
 
 
 
 
 <div class="preview-before">
 
+
 <img id="beforePreview">
+
 
 </div>
 
@@ -467,7 +661,9 @@ Supprimer le fond
 <div class="compare" id="compare">
 
 
+
 <img id="before">
+
 
 
 <img id="after" class="after">
@@ -476,21 +672,28 @@ Supprimer le fond
 
 <div class="slider" id="slider">
 
+
 <div class="handle">
+
 ⇆
-</div>
-
 
 </div>
 
 
 </div>
+
+
+
+</div>
+
 
 
 
 
 <a id="download" class="download">
+
 Télécharger
+
 </a>
 
 
@@ -512,34 +715,51 @@ Télécharger
 const fileInput=document.getElementById("file");
 const removeBtn=document.getElementById("remove");
 
+
 const before=document.getElementById("before");
 const after=document.getElementById("after");
 const beforePreview=document.getElementById("beforePreview");
 
+
 const compare=document.getElementById("compare");
 const slider=document.getElementById("slider");
+
 
 const download=document.getElementById("download");
 const status=document.getElementById("status");
 
 
+
 const greenMode=document.getElementById("greenMode");
 
+
+const colorZone=document.querySelector(".color-zone");
+
 const selectedColorBox=document.getElementById("selectedColor");
+
 const colorPanel=document.getElementById("colorPanel");
+
 const colorBox=document.getElementById("colorBox");
+
 const colorCursor=document.getElementById("colorCursor");
+
 const hue=document.getElementById("hue");
+
 const validateColor=document.getElementById("validateColor");
 
+
 const picker=document.getElementById("picker");
+
 const pipettePreview=document.getElementById("pipettePreview");
 
 
 
 let imageFile=null;
+
 let selectedColor=[0,255,0];
+
 let picking=false;
+
 
 
 
@@ -552,29 +772,24 @@ greenMode.onchange=()=>{
 
 if(greenMode.checked){
 
-document.querySelector(".color-zone").style.display="block";
+
+colorZone.style.display="block";
+
+colorPanel.style.display="block";
+
 
 }
 
 else{
 
-document.querySelector(".color-zone").style.display="none";
+
+colorZone.style.display="none";
+
 colorPanel.style.display="none";
+
 
 }
 
-
-};
-
-
-
-
-
-
-
-selectedColorBox.onclick=()=>{
-
-colorPanel.style.display="block";
 
 };
 
@@ -604,6 +819,7 @@ hsl(${h},100%,50%)
 let canvas=document.createElement("canvas");
 
 canvas.width=1;
+
 canvas.height=1;
 
 
@@ -611,10 +827,12 @@ canvas.height=1;
 let ctx=canvas.getContext("2d");
 
 
+
 ctx.fillStyle=
 `hsl(${h},100%,50%)`;
 
 ctx.fillRect(0,0,1,1);
+
 
 
 
@@ -638,7 +856,9 @@ selectedColorBox.style.background=
 `rgb(${p[0]},${p[1]},${p[2]})`;
 
 
+
 }
+
 
 
 
@@ -648,8 +868,7 @@ selectedColorBox.style.background=
 colorBox.onclick=e=>{
 
 
-let rect=
-colorBox.getBoundingClientRect();
+let rect=colorBox.getBoundingClientRect();
 
 
 
@@ -686,11 +905,11 @@ validateColor.onclick=()=>{
 colorPanel.style.display="none";
 
 
-status.textContent=
-"Couleur validée";
+status.textContent="Couleur validée";
 
 
 };
+
 
 
 
@@ -706,8 +925,7 @@ picker.onclick=()=>{
 picking=true;
 
 
-status.textContent=
-"Sélectionnez une couleur";
+status.textContent="Sélectionnez une couleur";
 
 
 };
@@ -731,13 +949,13 @@ if(!picking)return;
 
 pipettePreview.style.display="block";
 
+
 pipettePreview.style.left=
 e.clientX+15+"px";
 
 
 pipettePreview.style.top=
 e.clientY+15+"px";
-
 
 
 
@@ -757,11 +975,7 @@ beforePreview.naturalHeight;
 
 
 
-ctx.drawImage(
-beforePreview,
-0,
-0
-);
+ctx.drawImage(beforePreview,0,0);
 
 
 
@@ -792,6 +1006,7 @@ canvas.height;
 
 
 
+
 let p=
 ctx.getImageData(
 Math.floor(x),
@@ -802,6 +1017,8 @@ Math.floor(y),
 
 
 
+
+
 pipettePreview.style.background=
 
 `rgb(${p[0]},${p[1]},${p[2]})`;
@@ -809,6 +1026,7 @@ pipettePreview.style.background=
 
 
 });
+
 
 
 
@@ -850,11 +1068,8 @@ beforePreview.naturalHeight;
 
 
 
-ctx.drawImage(
-beforePreview,
-0,
-0
-);
+ctx.drawImage(beforePreview,0,0);
+
 
 
 
@@ -866,11 +1081,13 @@ beforePreview.getBoundingClientRect();
 
 
 
+
 let x=
 (e.clientX-rect.left)
 /
 rect.width*
 canvas.width;
+
 
 
 
@@ -895,6 +1112,8 @@ Math.floor(y),
 
 
 
+
+
 selectedColor=[
 
 p[0],
@@ -902,7 +1121,6 @@ p[1],
 p[2]
 
 ];
-
 
 
 
@@ -925,8 +1143,8 @@ p[2]
 
 
 
-hue.value=hsl[0];
 
+hue.value=hsl[0];
 
 
 
@@ -934,17 +1152,15 @@ colorCursor.style.left=
 hsl[1]+"%";
 
 
+
 colorCursor.style.top=
 (100-hsl[2])+"%";
 
 
 
-colorPanel.style.display="block";
 
 
-
-status.textContent=
-"Couleur sélectionnée";
+status.textContent="Couleur sélectionnée";
 
 
 };
@@ -962,12 +1178,16 @@ fileInput.onchange=e=>{
 
 imageFile=e.target.files[0];
 
+
 if(!imageFile)return;
+
 
 
 
 let url=
 URL.createObjectURL(imageFile);
+
+
 
 
 
@@ -978,6 +1198,8 @@ beforePreview.src=url;
 
 
 after.src="";
+
+
 
 compare.style.display="none";
 
@@ -990,11 +1212,11 @@ document.querySelector(".preview-before")
 
 
 
-status.textContent=
-"Image chargée";
+status.textContent="Image chargée";
 
 
 };
+
 
 
 
@@ -1014,9 +1236,10 @@ if(!imageFile)return;
 let img=new Image();
 
 
-
 img.src=
 URL.createObjectURL(imageFile);
+
+
 
 
 
@@ -1025,6 +1248,7 @@ img.onload=()=>{
 
 
 let canvas=document.createElement("canvas");
+
 
 let ctx=canvas.getContext("2d");
 
@@ -1040,6 +1264,7 @@ ctx.drawImage(img,0,0);
 
 
 
+
 let imageData=
 ctx.getImageData(
 0,
@@ -1051,6 +1276,8 @@ canvas.height
 
 
 let data=imageData.data;
+
+
 
 
 
@@ -1087,8 +1314,11 @@ count++;
 
 
 
+
 bg[0]/=count;
+
 bg[1]/=count;
+
 bg[2]/=count;
 
 
@@ -1104,7 +1334,9 @@ for(let i=0;i<data.length;i+=4){
 
 
 let r=data[i];
+
 let g=data[i+1];
+
 let b=data[i+2];
 
 
@@ -1133,12 +1365,14 @@ let d=Math.sqrt(
 
 
 if(d<100)
+
 remove=true;
 
 
 }
 
 else{
+
 
 
 let d=Math.sqrt(
@@ -1154,11 +1388,11 @@ let d=Math.sqrt(
 
 
 if(d<90)
+
 remove=true;
 
 
 }
-
 
 
 
@@ -1172,9 +1406,7 @@ data[i+3]=0;
 }
 
 
-
 }
-
 
 
 
@@ -1201,6 +1433,7 @@ canvas.toDataURL("image/png");
 after.src=url;
 
 
+
 compare.style.display="block";
 
 
@@ -1212,13 +1445,11 @@ download.download=
 "toolforge-transparent.png";
 
 
-
 download.style.display="block";
 
 
 
-status.textContent=
-"Fond supprimé";
+status.textContent="Fond supprimé";
 
 
 };
@@ -1237,10 +1468,13 @@ status.textContent=
 let dragging=false;
 
 
+
 compare.onmousedown=()=>dragging=true;
 
 
+
 window.onmouseup=()=>dragging=false;
+
 
 
 
@@ -1254,6 +1488,7 @@ if(!dragging)return;
 
 
 
+
 let rect=
 compare.getBoundingClientRect();
 
@@ -1261,6 +1496,7 @@ compare.getBoundingClientRect();
 
 let x=
 e.clientX-rect.left;
+
 
 
 
@@ -1275,8 +1511,10 @@ rect.width
 
 
 
+
 let percent=
 x/rect.width*100;
+
 
 
 
@@ -1316,8 +1554,11 @@ g/=255;
 b/=255;
 
 
+
 let max=Math.max(r,g,b);
+
 let min=Math.min(r,g,b);
+
 
 
 let h,s,l=(max+min)/2;
@@ -1326,8 +1567,10 @@ let h,s,l=(max+min)/2;
 
 if(max===min){
 
+
 h=0;
 s=0;
+
 
 }
 
@@ -1337,11 +1580,13 @@ else{
 let d=max-min;
 
 
+
 s=l>0.5
 ?
 d/(2-max-min)
 :
 d/(max+min);
+
 
 
 
@@ -1383,6 +1628,7 @@ h*=60;
 
 
 
+
 return [
 
 Math.round(h),
@@ -1397,9 +1643,9 @@ Math.round(l*100)
 }
 
 
-
 </script>
 
 
 </body>
+
 </html>

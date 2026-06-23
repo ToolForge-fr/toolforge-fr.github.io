@@ -29,6 +29,7 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
+user-select:none;
 }
 
 
@@ -48,7 +49,7 @@ padding:40px 0;
 
 .card{
 background:var(--card);
-border:1px solid(var(--border));
+border:1px solid var(--border);
 border-radius:18px;
 padding:25px;
 }
@@ -71,7 +72,7 @@ input,button{
 width:100%;
 padding:12px;
 border-radius:10px;
-border:1px solid(var(--border));
+border:1px solid var(--border);
 margin-bottom:10px;
 background:#0B1220;
 color:white;
@@ -89,6 +90,24 @@ font-weight:600;
 
 
 
+.preview-before{
+
+display:none;
+margin-top:20px;
+
+}
+
+
+
+.preview-before img{
+
+width:100%;
+border-radius:10px;
+
+}
+
+
+
 
 .compare{
 
@@ -99,6 +118,7 @@ overflow:hidden;
 border-radius:10px;
 margin-top:20px;
 display:none;
+background:#0B1220;
 
 }
 
@@ -110,7 +130,9 @@ position:absolute;
 width:100%;
 height:100%;
 object-fit:contain;
+
 }
+
 
 
 .after{
@@ -126,20 +148,16 @@ clip-path:inset(0 50% 0 0);
 position:absolute;
 top:0;
 left:50%;
-
 height:100%;
 width:3px;
-
 background:white;
-
-cursor:ew-resize;
+pointer-events:none;
 
 }
 
 
-.slider::before{
 
-content:"↔";
+.handle{
 
 position:absolute;
 
@@ -148,18 +166,20 @@ left:50%;
 
 transform:translate(-50%,-50%);
 
-background:var(--accent);
-
-width:45px;
-height:45px;
+width:42px;
+height:42px;
 
 border-radius:50%;
+
+background:var(--accent);
 
 display:flex;
 align-items:center;
 justify-content:center;
 
-font-size:22px;
+font-size:20px;
+
+box-shadow:0 0 12px #000;
 
 }
 
@@ -180,12 +200,15 @@ display:none;
 }
 
 
+
 .status{
 
 margin-top:10px;
 color:var(--muted);
 
 }
+
+
 
 </style>
 
@@ -206,7 +229,7 @@ color:var(--muted);
 
 
 <p>
-Réduis la taille de tes images sans installation.
+Réduisez la taille de vos images sans installation.
 </p>
 
 
@@ -215,7 +238,7 @@ Réduis la taille de tes images sans installation.
 
 
 
-<label>Qualité</label>
+<label>Qualité (0.1 → 1)</label>
 
 <input 
 type="number"
@@ -235,6 +258,18 @@ Compresser
 
 
 
+
+
+<div class="preview-before" id="previewBefore">
+
+<img id="beforePreview">
+
+</div>
+
+
+
+
+
 <div class="compare" id="compare">
 
 
@@ -244,10 +279,18 @@ Compresser
 <img id="after" class="after">
 
 
-<div class="slider" id="slider"></div>
+<div class="slider" id="slider">
+
+<div class="handle">
+⇆
+</div>
+
+</div>
 
 
 </div>
+
+
 
 
 
@@ -259,13 +302,16 @@ Télécharger
 
 
 
+
 <div class="status" id="status"></div>
 
 
+
 </div>
 
 
 </div>
+
 
 
 
@@ -275,45 +321,86 @@ Télécharger
 
 
 const fileInput=document.getElementById("file");
-const qualityInput=document.getElementById("quality");
-const button=document.getElementById("compress");
 
+const qualityInput=document.getElementById("quality");
+
+const compressBtn=document.getElementById("compress");
+
+
+const beforePreview=document.getElementById("beforePreview");
 
 const before=document.getElementById("before");
+
 const after=document.getElementById("after");
 
+
 const compare=document.getElementById("compare");
+
 const slider=document.getElementById("slider");
 
+
 const download=document.getElementById("download");
+
 const status=document.getElementById("status");
+
 
 
 let imageFile;
 
 
 
-fileInput.onchange=e=>{
 
 
-imageFile=e.target.files[0];
+fileInput.addEventListener("change",e=>{
 
 
-if(!imageFile)return;
+const file=e.target.files[0];
 
 
-before.src=URL.createObjectURL(imageFile);
+if(!file)return;
+
+
+
+imageFile=file;
+
+
+
+const url=URL.createObjectURL(file);
+
+
+
+// reset
+
+after.src="";
+
+compare.style.display="none";
+
+download.style.display="none";
+
+slider.style.left="50%";
+
+
+
+before.src=url;
+
+beforePreview.src=url;
+
+
+beforePreview.parentElement.style.display="block";
+
+
 
 status.textContent="Image chargée";
 
 
-};
+});
 
 
 
 
 
-button.onclick=()=>{
+
+compressBtn.onclick=()=>{
 
 
 if(!imageFile)return;
@@ -321,6 +408,7 @@ if(!imageFile)return;
 
 
 const img=new Image();
+
 
 
 img.onload=()=>{
@@ -332,7 +420,9 @@ const ctx=canvas.getContext("2d");
 
 
 canvas.width=img.width;
+
 canvas.height=img.height;
+
 
 
 ctx.drawImage(img,0,0);
@@ -349,26 +439,40 @@ const url=URL.createObjectURL(blob);
 after.src=url;
 
 
+compare.style.display="block";
+
+
+after.style.clipPath=
+"inset(0 50% 0 0)";
+
+
 
 download.href=url;
 
 download.download="toolforge-compressed.jpg";
 
-
 download.style.display="block";
 
-
-compare.style.display="block";
 
 
 status.textContent="Compression terminée";
 
 
 
-}, "image/jpeg", Number(qualityInput.value));
+},
+
+"image/jpeg",
+
+Number(qualityInput.value)
+
+
+
+);
+
 
 
 };
+
 
 
 img.src=before.src;
@@ -384,13 +488,25 @@ let dragging=false;
 
 
 
-slider.onmousedown=()=>dragging=true;
+compare.addEventListener("mousedown",()=>{
+
+dragging=true;
+
+});
 
 
-window.onmouseup=()=>dragging=false;
+
+window.addEventListener("mouseup",()=>{
+
+dragging=false;
+
+});
 
 
-window.onmousemove=e=>{
+
+
+
+window.addEventListener("mousemove",e=>{
 
 
 if(!dragging)return;
@@ -404,23 +520,24 @@ const rect=compare.getBoundingClientRect();
 let x=e.clientX-rect.left;
 
 
-if(x<0)x=0;
-
-if(x>rect.width)x=rect.width;
+x=Math.max(0,Math.min(x,rect.width));
 
 
 
-let percent=x/rect.width*100;
+let percent=(x/rect.width)*100;
 
 
 
 slider.style.left=percent+"%";
 
 
+
 after.style.clipPath=
 `inset(0 ${100-percent}% 0 0)`;
 
-};
+
+});
+
 
 
 </script>

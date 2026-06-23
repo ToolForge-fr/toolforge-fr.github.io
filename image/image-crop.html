@@ -2,11 +2,10 @@
 <html lang="fr">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Recadrage d’Image - ToolForge</title>
+<title>Recadrage Image - ToolForge</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -125,7 +124,7 @@ border:1px solid var(--border);
 
 <h1>Recadrage d’image</h1>
 
-<p>Recadrez et générez plusieurs versions sans écraser l’original.</p>
+<p>Sélectionne une zone et génère des versions recadrées.</p>
 
 <input type="file" id="file" accept="image/*">
 
@@ -153,46 +152,47 @@ const workspace=document.getElementById("workspace");
 const crop=document.getElementById("crop");
 const preview=document.getElementById("preview");
 
-let originalSrc="";
+let original=null;
 let scale=1;
-let imgW=0;
-let imgH=0;
+let naturalW=0;
+let naturalH=0;
 
 // LOAD IMAGE
 file.onchange=e=>{
 const f=e.target.files[0];
 if(!f)return;
 
-originalSrc=URL.createObjectURL(f);
-img.src=originalSrc;
+original=URL.createObjectURL(f);
+img.src=original;
 
 img.onload=()=>{
 
-imgW=img.naturalWidth;
-imgH=img.naturalHeight;
+naturalW=img.naturalWidth;
+naturalH=img.naturalHeight;
 
+// FIT workspace
 const maxW=700;
 const maxH=450;
 
-scale=Math.min(maxW/imgW,maxH/imgH,1);
+scale=Math.min(maxW/naturalW,maxH/naturalH,1);
 
-img.style.width=imgW*scale+"px";
-img.style.height=imgH*scale+"px";
+img.style.width=naturalW*scale+"px";
+img.style.height=naturalH*scale+"px";
 
 workspace.style.display="flex";
 };
 };
 
-// MOVE crop (clamp correct)
+// MOVE crop (strict bounds)
 let dragging=false;
-let startX,startY,startLeft,startTop;
+let sx,sy,sl,st;
 
 crop.onmousedown=e=>{
 dragging=true;
-startX=e.clientX;
-startY=e.clientY;
-startLeft=crop.offsetLeft;
-startTop=crop.offsetTop;
+sx=e.clientX;
+sy=e.clientY;
+sl=crop.offsetLeft;
+st=crop.offsetTop;
 };
 
 window.onmouseup=()=>dragging=false;
@@ -200,8 +200,8 @@ window.onmouseup=()=>dragging=false;
 window.onmousemove=e=>{
 if(!dragging)return;
 
-let x=startLeft+(e.clientX-startX);
-let y=startTop+(e.clientY-startY);
+let x=sl+(e.clientX-sx);
+let y=st+(e.clientY-sy);
 
 const maxX=workspace.clientWidth-crop.offsetWidth;
 const maxY=workspace.clientHeight-crop.offsetHeight;
@@ -210,7 +210,7 @@ crop.style.left=Math.max(0,Math.min(maxX,x))+"px";
 crop.style.top=Math.max(0,Math.min(maxY,y))+"px";
 };
 
-// CROP WITHOUT REPLACING IMAGE
+// CROP (always from ORIGINAL)
 document.getElementById("cropBtn").onclick=()=>{
 
 const canvas=document.createElement("canvas");
@@ -219,26 +219,24 @@ const ctx=canvas.getContext("2d");
 const imgRect=img.getBoundingClientRect();
 const cropRect=crop.getBoundingClientRect();
 
-// conversion coords
 const x=(cropRect.left-imgRect.left)/scale;
 const y=(cropRect.top-imgRect.top)/scale;
 const w=cropRect.width/scale;
 const h=cropRect.height/scale;
 
-// draw from ORIGINAL IMAGE ONLY
-const tempImg=new Image();
-tempImg.src=originalSrc;
+const temp=new Image();
+temp.src=original;
 
-tempImg.onload=()=>{
+temp.onload=()=>{
 
 canvas.width=w;
 canvas.height=h;
 
-ctx.drawImage(tempImg,x,y,w,h,0,0,w,h);
+ctx.drawImage(temp,x,y,w,h,0,0,w,h);
 
 const url=canvas.toDataURL("image/png");
 
-// add preview (NOT replace main image)
+// ADD preview ONLY (never replace main image)
 const im=document.createElement("img");
 im.src=url;
 preview.appendChild(im);

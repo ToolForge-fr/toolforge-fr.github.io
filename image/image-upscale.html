@@ -2,12 +2,16 @@
 <html lang="fr">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Amélioration d’Image - ToolForge</title>
+<title>Suppression de fond - ToolForge</title>
+
+<meta name="description" content="Supprimez automatiquement l’arrière-plan de vos images directement dans votre navigateur.">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 
 <style>
 
@@ -20,6 +24,7 @@
 --accent:#4F8CFF;
 }
 
+
 *{
 margin:0;
 padding:0;
@@ -27,17 +32,20 @@ box-sizing:border-box;
 user-select:none;
 }
 
+
 body{
 font-family:Inter,sans-serif;
 background:var(--bg);
 color:var(--text);
 }
 
+
 .container{
 width:min(900px,92%);
 margin:auto;
 padding:40px 0;
 }
+
 
 .card{
 background:var(--card);
@@ -46,7 +54,11 @@ border-radius:18px;
 padding:25px;
 }
 
-h1{margin-bottom:10px}
+
+h1{
+margin-bottom:10px;
+}
+
 
 p{
 color:var(--muted);
@@ -54,14 +66,9 @@ margin-bottom:20px;
 line-height:1.6;
 }
 
-/* description identique index */
-.desc{
-color:var(--muted);
-margin-bottom:20px;
-line-height:1.6;
-}
 
 input,button{
+
 width:100%;
 padding:12px;
 border-radius:10px;
@@ -69,28 +76,44 @@ border:1px solid var(--border);
 margin-bottom:10px;
 background:#0B1220;
 color:white;
+
 }
 
+
 button{
+
 background:var(--accent);
 cursor:pointer;
 font-weight:600;
+
 }
+
+
 
 /* preview */
+
 .preview-before{
+
 display:none;
-margin-top:15px;
+margin-top:20px;
+
 }
+
 
 .preview-before img{
+
 width:100%;
 border-radius:10px;
-border:1px solid var(--border);
+
 }
 
-/* compare */
+
+
+
+/* comparaison */
+
 .compare{
+
 position:relative;
 width:100%;
 height:500px;
@@ -98,232 +121,505 @@ overflow:hidden;
 border-radius:10px;
 margin-top:20px;
 display:none;
+
 background:#0B1220;
+
 }
 
-.compare img{
+
+
+
+/* damier transparence */
+
+.transparent-bg{
+
 position:absolute;
 inset:0;
+
+background:
+linear-gradient(45deg,#888 25%,transparent 25%),
+linear-gradient(-45deg,#888 25%,transparent 25%),
+linear-gradient(45deg,transparent 75%,#888 75%),
+linear-gradient(-45deg,transparent 75%,#888 75%);
+
+background-size:30px 30px;
+background-position:
+0 0,
+0 15px,
+15px -15px,
+-15px 0;
+
+z-index:0;
+
+}
+
+
+
+.compare img{
+
+position:absolute;
+inset:0;
+
 width:100%;
 height:100%;
+
 object-fit:contain;
+
 }
 
-/* BEFORE */
+
+
+
 .before{
+
 clip-path:inset(0 50% 0 0);
+
 z-index:2;
+
 }
 
-/* AFTER (IA style) */
+
+
+
 .after{
+
 clip-path:inset(0 0 0 50%);
-z-index:1;
-filter:brightness(1.25) contrast(1.25) saturate(1.15) blur(0.2px);
+
+z-index:2;
+
 }
 
-/* slider */
+
+
+
 .slider{
+
 position:absolute;
+
 top:0;
 left:50%;
+
 height:100%;
+
 width:3px;
+
 background:white;
-cursor:ew-resize;
+
 z-index:5;
+
 }
 
+
+
 .handle{
+
 position:absolute;
+
 top:50%;
 left:50%;
+
 transform:translate(-50%,-50%);
+
 width:42px;
 height:42px;
+
 border-radius:50%;
+
 background:var(--accent);
+
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:18px;
+
+font-size:20px;
+
 box-shadow:0 0 12px #000;
+
 }
+
+
+
 
 .download{
-display:block;
-text-align:center;
-padding:12px;
-margin-top:10px;
-background:var(--accent);
-color:white;
-text-decoration:none;
-border-radius:10px;
+
 display:none;
+
+text-align:center;
+
+padding:12px;
+
+margin-top:10px;
+
+background:var(--accent);
+
+color:white;
+
+text-decoration:none;
+
+border-radius:10px;
+
 }
 
+
+
 .status{
+
 margin-top:10px;
+
 color:var(--muted);
+
 }
+
+
 
 </style>
 
+
 </head>
+
 
 <body>
 
+
 <div class="container">
+
 
 <div class="card">
 
-<h1>Amélioration d’image</h1>
 
-<p class="desc">
-Améliorez automatiquement vos images directement dans le navigateur grâce à un traitement intelligent basé sur contraste, luminosité et netteté.
+<h1>Suppression de fond</h1>
+
+
+<p>
+Supprimez automatiquement l’arrière-plan de vos images directement dans le navigateur.
 </p>
+
+
 
 <input type="file" id="file" accept="image/*">
 
-<label>Niveau (0.5 → 2)</label>
-<input type="number" id="level" value="1.3" min="0.5" max="2" step="0.1">
 
-<button id="apply">Améliorer</button>
+
+<button id="remove">
+
+Supprimer le fond
+
+</button>
+
+
+
 
 <div class="preview-before">
+
 <img id="beforePreview">
+
 </div>
+
+
+
+
 
 <div class="compare" id="compare">
 
+
+<div class="transparent-bg"></div>
+
+
+<img id="before">
+
+
 <img id="after" class="after">
-<img id="before" class="before">
+
+
 
 <div class="slider" id="slider">
-<div class="handle">⇆</div>
+
+
+<div class="handle">
+⇆
 </div>
+
 
 </div>
 
-<a id="download" class="download">Télécharger</a>
+
+</div>
+
+
+
+
+
+<a id="download" class="download">
+
+Télécharger
+
+</a>
+
+
+
 
 <div class="status" id="status"></div>
 
+
+
 </div>
 
 </div>
+
+
+
+
 
 <script>
 
+
 const fileInput=document.getElementById("file");
-const levelInput=document.getElementById("level");
+
+const removeBtn=document.getElementById("remove");
+
 
 const before=document.getElementById("before");
+
 const after=document.getElementById("after");
+
 const beforePreview=document.getElementById("beforePreview");
 
+
 const compare=document.getElementById("compare");
+
 const slider=document.getElementById("slider");
 
+
 const download=document.getElementById("download");
+
 const status=document.getElementById("status");
 
-let imgFile=null;
 
-/* LOAD */
-fileInput.onchange=e=>{
-const f=e.target.files[0];
-if(!f)return;
+let imageFile=null;
 
-imgFile=f;
 
-const url=URL.createObjectURL(f);
+
+
+fileInput.addEventListener("change",e=>{
+
+
+const file=e.target.files[0];
+
+if(!file)return;
+
+
+imageFile=file;
+
+
+const url=URL.createObjectURL(file);
+
+
 
 before.src=url;
-after.src=url;
+
 beforePreview.src=url;
+
+
+after.src="";
+
+
+compare.style.display="none";
+
+download.style.display="none";
+
 
 document.querySelector(".preview-before").style.display="block";
 
-compare.style.display="none";
-download.style.display="none";
+
 status.textContent="Image chargée";
-};
 
-/* APPLY IA */
-document.getElementById("apply").onclick=()=>{
-
-if(!imgFile)return;
-
-const img=new Image();
-img.src=URL.createObjectURL(imgFile);
-
-img.onload=()=>{
-
-const canvas=document.createElement("canvas");
-const ctx=canvas.getContext("2d");
-
-canvas.width=img.width;
-canvas.height=img.height;
-
-/* pseudo IA */
-ctx.filter=`
-brightness(${levelInput.value})
-contrast(${levelInput.value})
-saturate(${levelInput.value})
-blur(0.2px)
-`;
-
-ctx.drawImage(img,0,0);
-
-/* sharpen pass */
-ctx.globalAlpha=0.25;
-ctx.filter="contrast(1.4) brightness(1.1)";
-ctx.drawImage(canvas,0,0);
-ctx.globalAlpha=1;
-
-const url=canvas.toDataURL("image/jpeg");
-
-after.src=url;
-
-compare.style.display="block";
-slider.style.left="50%";
-
-download.href=url;
-download.download="toolforge-enhanced.jpg";
-download.style.display="block";
-
-status.textContent="Amélioration terminée";
-};
-
-};
-
-/* SLIDER FIX CORRECT */
-let dragging=false;
-
-compare.addEventListener("mousedown",()=>dragging=true);
-window.addEventListener("mouseup",()=>dragging=false);
-
-window.addEventListener("mousemove",(e)=>{
-
-if(!dragging)return;
-
-const rect=compare.getBoundingClientRect();
-
-let x=e.clientX-rect.left;
-x=Math.max(0,Math.min(x,rect.width));
-
-const percent=(x/rect.width)*100;
-
-/* CORRECT DIRECTION */
-after.style.clipPath=`inset(0 ${100-percent}% 0 0)`;
-before.style.clipPath=`inset(0 0 0 ${percent}%)`;
-
-slider.style.left=percent+"%";
 
 });
 
+
+
+
+
+
+removeBtn.onclick=()=>{
+
+
+if(!imageFile)return;
+
+
+
+const img=new Image();
+
+
+img.src=URL.createObjectURL(imageFile);
+
+
+
+img.onload=()=>{
+
+
+const canvas=document.createElement("canvas");
+
+const ctx=canvas.getContext("2d");
+
+
+
+canvas.width=img.width;
+
+canvas.height=img.height;
+
+
+
+ctx.drawImage(img,0,0);
+
+
+
+const data=ctx.getImageData(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+
+for(let i=0;i<data.data.length;i+=4){
+
+
+let r=data.data[i];
+
+let g=data.data[i+1];
+
+let b=data.data[i+2];
+
+
+
+/* suppression fond clair */
+
+if(
+r>220 &&
+g>220 &&
+b>220
+){
+
+data.data[i+3]=0;
+
+}
+
+
+}
+
+
+
+ctx.putImageData(data,0,0);
+
+
+
+const url=canvas.toDataURL("image/png");
+
+
+
+after.src=url;
+
+
+compare.style.display="block";
+
+slider.style.left="50%";
+
+
+
+download.href=url;
+
+download.download="toolforge-remove-background.png";
+
+download.style.display="block";
+
+
+
+status.textContent="Fond supprimé";
+
+
+};
+
+
+};
+
+
+
+
+
+
+/* slider */
+
+let dragging=false;
+
+
+
+compare.addEventListener("mousedown",()=>{
+
+dragging=true;
+
+});
+
+
+
+window.addEventListener("mouseup",()=>{
+
+dragging=false;
+
+});
+
+
+
+
+
+window.addEventListener("mousemove",e=>{
+
+
+if(!dragging)return;
+
+
+
+const rect=compare.getBoundingClientRect();
+
+
+
+let x=e.clientX-rect.left;
+
+
+x=Math.max(
+0,
+Math.min(
+x,
+rect.width
+)
+);
+
+
+
+let percent=x/rect.width*100;
+
+
+
+slider.style.left=percent+"%";
+
+
+
+after.style.clipPath=
+`inset(0 ${100-percent}% 0 0)`;
+
+
+before.style.clipPath=
+`inset(0 0 0 ${percent}%)`;
+
+
+
+});
+
+
+
 </script>
+
 
 </body>
 

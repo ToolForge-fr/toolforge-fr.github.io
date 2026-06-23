@@ -53,7 +53,7 @@ color:var(--muted);
 margin-bottom:20px;
 }
 
-input,button{
+input,button,select{
 width:100%;
 padding:12px;
 border-radius:10px;
@@ -69,7 +69,7 @@ cursor:pointer;
 font-weight:600;
 }
 
-/* preview area */
+/* stage */
 .stage{
 margin-top:20px;
 display:none;
@@ -82,52 +82,51 @@ position:relative;
 overflow:hidden;
 }
 
-/* image */
 #img{
 max-width:100%;
 max-height:100%;
 transform-origin:center center;
 }
 
-/* control wheel */
-.wheel{
-position:absolute;
-width:160px;
-height:160px;
-border-radius:50%;
-border:2px solid var(--accent);
+/* angle input row */
+.row{
 display:flex;
+gap:10px;
 align-items:center;
-justify-content:center;
-cursor:pointer;
-background:rgba(11,18,32,0.4);
+margin-bottom:10px;
 }
 
-.wheel::after{
-content:"";
-width:10px;
-height:10px;
-background:var(--accent);
-border-radius:50%;
-position:absolute;
-top:10px;
+.row input{
+flex:2;
+}
+
+.row select{
+flex:1;
+}
+
+/* mirror */
+.mirror{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:10px;
+color:var(--muted);
+}
+
+.mirror label{
+min-width:160px;
+text-align:left;
+}
+
+.mirror input{
+width:auto;
 }
 
 /* angle display */
 .angle{
-margin-top:15px;
 text-align:center;
 color:var(--muted);
-font-size:16px;
-}
-
-/* mirror */
-.options{
-margin-top:10px;
-display:flex;
-align-items:center;
-gap:10px;
-color:var(--muted);
+margin:10px 0;
 }
 
 </style>
@@ -142,26 +141,34 @@ color:var(--muted);
 
 <h1>Rotation d’image</h1>
 
-<p>Faites pivoter et refléter vos images directement dans le navigateur.</p>
+<p>Rotation + miroir avec unités modifiables.</p>
 
 <input type="file" id="file" accept="image/*">
 
 <div class="stage" id="stage">
-
 <img id="img">
-
-<div class="wheel" id="wheel"></div>
-
 </div>
 
-<div class="angle" id="angle">0°</div>
+<!-- ANGLE + UNIT -->
+<div class="row">
+<input type="number" id="angleInput" value="0">
+<select id="unit">
+<option value="deg">Degrés</option>
+<option value="rad">Radians</option>
+</select>
+</div>
 
-<div class="options">
+<div class="angle" id="angleText">0°</div>
+
+<!-- MIRROR -->
+<div class="mirror">
+<label>Image miroir</label>
 <input type="checkbox" id="mirror">
-<label for="mirror">Rotation miroir (flip horizontal)</label>
 </div>
 
 <button id="downloadBtn">Télécharger</button>
+
+<br><br>
 
 </div>
 
@@ -172,12 +179,12 @@ color:var(--muted);
 const file=document.getElementById("file");
 const img=document.getElementById("img");
 const stage=document.getElementById("stage");
-const wheel=document.getElementById("wheel");
-const angleText=document.getElementById("angle");
+const angleInput=document.getElementById("angleInput");
+const unit=document.getElementById("unit");
 const mirror=document.getElementById("mirror");
+const angleText=document.getElementById("angleText");
 
-let angle=0;
-let dragging=false;
+let angleDeg=0;
 
 file.onchange=e=>{
 const f=e.target.files[0];
@@ -187,41 +194,37 @@ img.src=URL.createObjectURL(f);
 stage.style.display="flex";
 };
 
-wheel.addEventListener("mousedown",()=>dragging=true);
-window.addEventListener("mouseup",()=>dragging=false);
+function updateAngle(){
 
-window.addEventListener("mousemove",(e)=>{
+let v=parseFloat(angleInput.value)||0;
 
-if(!dragging)return;
-
-const rect=stage.getBoundingClientRect();
-const cx=rect.left+rect.width/2;
-const cy=rect.top+rect.height/2;
-
-const dx=e.clientX-cx;
-const dy=e.clientY-cy;
-
-angle=Math.atan2(dy,dx)*(180/Math.PI)+90;
+if(unit.value==="rad"){
+angleDeg=v*180/Math.PI;
+angleText.textContent=`${v.toFixed(2)} rad`;
+}else{
+angleDeg=v;
+angleText.textContent=`${v}°`;
+}
 
 applyTransform();
-
-});
+}
 
 function applyTransform(){
 
-let transform=`rotate(${angle}deg)`;
+let t=`rotate(${angleDeg}deg)`;
 
 if(mirror.checked){
-transform+=` scaleX(-1)`;
+t+=` scaleX(-1)`;
 }
 
-img.style.transform=transform;
-angleText.textContent=`${Math.round(angle)}°`;
+img.style.transform=t;
 }
 
-/* mirror update */
+angleInput.addEventListener("input",updateAngle);
+unit.addEventListener("change",updateAngle);
 mirror.addEventListener("change",applyTransform);
 
+/* DOWNLOAD */
 document.getElementById("downloadBtn").onclick=()=>{
 
 const canvas=document.createElement("canvas");
@@ -239,7 +242,7 @@ canvas.width=w;
 canvas.height=h;
 
 ctx.translate(w/2,h/2);
-ctx.rotate(angle*Math.PI/180);
+ctx.rotate(angleDeg*Math.PI/180);
 
 if(mirror.checked){
 ctx.scale(-1,1);
